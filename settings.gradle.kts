@@ -1,4 +1,4 @@
-rootProject.name = "oppgave-client"
+rootProject.name = "dokarkiv-client"
 
 pluginManagement {
     val jvmVersion: String by settings
