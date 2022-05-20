@@ -4,7 +4,6 @@ import io.ktor.http.HttpStatusCode
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.tokenprovider.AccessTokenProvider
-import no.nav.syfo.client.dokarkiv.DokArkivClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

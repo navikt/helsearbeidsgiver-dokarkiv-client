@@ -1,4 +1,4 @@
-package no.nav.syfo.client.dokarkiv
+package no.nav.helsearbeidsgiver.dokarkiv
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.ClientRequestException
@@ -10,11 +10,6 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import no.nav.helsearbeidsgiver.dokarkiv.AvsenderMottaker
-import no.nav.helsearbeidsgiver.dokarkiv.Bruker
-import no.nav.helsearbeidsgiver.dokarkiv.FerdigstillRequest
-import no.nav.helsearbeidsgiver.dokarkiv.OppdaterJournalpostRequest
-import no.nav.helsearbeidsgiver.dokarkiv.Sak
 import no.nav.helsearbeidsgiver.tokenprovider.AccessTokenProvider
 import org.slf4j.LoggerFactory
 import java.io.IOException
