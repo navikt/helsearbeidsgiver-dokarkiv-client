@@ -7,8 +7,8 @@ val mockkVersion: String by project
 val githubPassword: String by project
 
 plugins {
-    kotlin("jvm") version "1.6.21"
-    kotlin("plugin.serialization") version "1.6.21"
+    kotlin("jvm")
+    kotlin("plugin.serialization")
     id("org.jmailen.kotlinter") version "3.10.0"
     id("maven-publish")
 }
@@ -32,10 +32,10 @@ repositories {
     mavenCentral()
     maven {
         credentials {
-            username = "x-access-token"
-            password = githubPassword
+            username = System.getenv("GITHUB_ACTOR") ?: "x-access-token"
+            password = System.getenv("GITHUB_TOKEN") ?: githubPassword
         }
-        setUrl("https://maven.pkg.github.com/navikt/helsearbeidsgiver-tokenprovider")
+        setUrl("https://maven.pkg.github.com/navikt/*")
     }
 }
 
