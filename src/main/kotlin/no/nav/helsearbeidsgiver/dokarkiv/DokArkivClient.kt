@@ -10,8 +10,12 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import no.nav.helse.arbeidsgiver.integrasjoner.AccessTokenProvider
-import no.nav.syfo.helpers.retry
+import no.nav.helsearbeidsgiver.dokarkiv.AvsenderMottaker
+import no.nav.helsearbeidsgiver.dokarkiv.Bruker
+import no.nav.helsearbeidsgiver.dokarkiv.FerdigstillRequest
+import no.nav.helsearbeidsgiver.dokarkiv.OppdaterJournalpostRequest
+import no.nav.helsearbeidsgiver.dokarkiv.Sak
+import no.nav.helsearbeidsgiver.tokenprovider.AccessTokenProvider
 import org.slf4j.LoggerFactory
 import java.io.IOException
 
@@ -24,7 +28,7 @@ class DokArkivClient(
     private val accessTokenProvider: AccessTokenProvider,
     private val httpClient: HttpClient
 ) {
-    private val log: org.slf4j.Logger = LoggerFactory.getLogger("DokArkivClient")
+    private val log: org.slf4j.Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     /**
      * Tjeneste som lar konsument "switche" status på en journalpost fra midlerdidig til endelig. Dersom journalposten
@@ -42,7 +46,7 @@ class DokArkivClient(
      * 403 Forbidden. Konsument har ikke tilgang til å ferdigstille journalpost.
      * 500 Internal Server Error. Dersom en uventet feil oppstår i dokarkiv.
      */
-    private suspend fun ferdigstillJournalpost(
+    private suspend fun ferdigstill(
         journalpostId: String,
         msgId: String,
         ferdigstillRequest: FerdigstillRequest
@@ -78,7 +82,7 @@ class DokArkivClient(
         journalpostId: String,
         msgId: String,
     ): String {
-        return ferdigstillJournalpost(journalpostId, msgId, FerdigstillRequest(AUTOMATISK_JOURNALFOERING_ENHET))
+        return ferdigstill(journalpostId, msgId, FerdigstillRequest(AUTOMATISK_JOURNALFOERING_ENHET))
     }
 
     /**
@@ -86,13 +90,13 @@ class DokArkivClient(
      *
      * https://confluence.adeo.no/display/BOA/oppdaterJournalpost
      */
-    private suspend fun oppdaterJournalpost(
+    private suspend fun oppdater(
         journalpostId: String,
         oppdaterJournalpostRequest: OppdaterJournalpostRequest,
         msgId: String
-    ) = retry("oppdater_journalpost") {
+    ): HttpResponse {
         try {
-            httpClient.put<HttpResponse>("$url/journalpost/$journalpostId") {
+            return httpClient.put<HttpResponse>("$url/journalpost/$journalpostId") {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 header("Authorization", "Bearer ${accessTokenProvider.getToken()}")
@@ -137,6 +141,6 @@ class DokArkivClient(
             avsenderMottaker = AvsenderMottaker(fnr, arbeidsgiverNavn),
             sak = Sak("GENERELL_SAK", "GSAK")
         )
-        return oppdaterJournalpost(journalpostId, req, msgId)
+        return oppdater(journalpostId, req, msgId)
     }
 }
