@@ -8,11 +8,10 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 
-
 fun buildHttpClientText(status: HttpStatusCode, text: String = ""): HttpClient {
     return HttpClient(MockEngine) {
         install(JsonFeature) {
-            //serializer = buildJacksonSerializer()
+            // serializer = buildJacksonSerializer()
             expectSuccess = false
         }
         engine {

@@ -18,7 +18,7 @@ class DokArkivClientTest {
     @Test
     fun `Skal ferdigstille journalpost når man får status OK`() {
         dokArkivClient = DokArkivClient("", mockStsClient, buildHttpClientText(HttpStatusCode.OK, ""))
-        val resultat =  runBlocking {
+        val resultat = runBlocking {
             dokArkivClient.ferdigstillJournalpost("111", "1001")
         }
         assertEquals("", resultat)
@@ -28,11 +28,10 @@ class DokArkivClientTest {
     fun `Skal håndtere at ferdigstilling av journalpost feiler`() {
         dokArkivClient = DokArkivClient("", mockStsClient, buildHttpClientText(HttpStatusCode.InternalServerError, ""))
         assertThrows<Exception> {
-        runBlocking {
+            runBlocking {
 
                 dokArkivClient.ferdigstillJournalpost("111", "1001")
             }
         }
     }
-
 }
