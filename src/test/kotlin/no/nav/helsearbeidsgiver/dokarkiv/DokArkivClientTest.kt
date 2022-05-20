@@ -12,11 +12,10 @@ class DokArkivClientTest {
 
     private val mockStsClient = mockk<AccessTokenProvider>(relaxed = true)
 
-    private lateinit var dokArkivClient: DokArkivClient
-
+    @Suppress("NonAsciiCharacters")
     @Test
     fun `Skal ferdigstille journalpost når man får status OK`() {
-        dokArkivClient = DokArkivClient("", mockStsClient, buildHttpClientText(HttpStatusCode.OK, ""))
+        val dokArkivClient = DokArkivClient("", mockStsClient, buildHttpClientText(HttpStatusCode.OK, ""))
         val resultat = runBlocking {
             dokArkivClient.ferdigstillJournalpost("111", "1001")
         }
@@ -25,10 +24,9 @@ class DokArkivClientTest {
 
     @Test
     fun `Skal håndtere at ferdigstilling av journalpost feiler`() {
-        dokArkivClient = DokArkivClient("", mockStsClient, buildHttpClientText(HttpStatusCode.InternalServerError, ""))
+        val dokArkivClient = DokArkivClient("", mockStsClient, buildHttpClientText(HttpStatusCode.InternalServerError, ""))
         assertThrows<Exception> {
             runBlocking {
-
                 dokArkivClient.ferdigstillJournalpost("111", "1001")
             }
         }

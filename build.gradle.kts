@@ -7,8 +7,8 @@ val mockkVersion: String by project
 val githubPassword: String by project
 
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
+    kotlin("jvm") version "1.6.21"
+    kotlin("plugin.serialization") version "1.6.21"
     id("org.jmailen.kotlinter") version "3.10.0"
     id("maven-publish")
 }
@@ -17,7 +17,9 @@ group = "no.nav.helsearbeidsgiver"
 version = "0.1.2"
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 
 tasks {
