@@ -18,7 +18,7 @@ fun buildHttpClientText(status: HttpStatusCode, text: String = ""): HttpClient {
             addHandler {
                 respond(
                     text,
-                    headers = headersOf("Content-Type" to listOf(ContentType.Text.Plain.toString())),
+                    headers = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString())),
                     status = status
                 )
             }
