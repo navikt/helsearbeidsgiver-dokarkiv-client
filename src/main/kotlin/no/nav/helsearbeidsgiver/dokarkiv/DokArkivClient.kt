@@ -5,11 +5,13 @@ import io.ktor.client.features.ClientRequestException
 import io.ktor.client.request.accept
 import io.ktor.client.request.header
 import io.ktor.client.request.patch
+import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.http.withCharset
 import no.nav.helsearbeidsgiver.tokenprovider.AccessTokenProvider
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -75,7 +77,7 @@ class DokArkivClient(
 
     suspend fun ferdigstillJournalpost(
         journalpostId: String,
-        msgId: String,
+        msgId: String
     ): String {
         return ferdigstill(journalpostId, msgId, FerdigstillRequest(AUTOMATISK_JOURNALFOERING_ENHET))
     }
@@ -128,14 +130,39 @@ class DokArkivClient(
             bruker = Bruker(
                 fnr,
                 if (isFnr) {
-                    "FNR"
+                    IdType.FNR
                 } else {
-                    "ORGNR"
+                    IdType.ORGNR
                 }
             ),
-            avsenderMottaker = AvsenderMottaker(fnr, arbeidsgiverNavn),
-            sak = Sak("GENERELL_SAK", "GSAK")
+            avsenderMottaker = AvsenderMottaker(fnr, IdType.FNR, arbeidsgiverNavn),
+            sak = Sak(Sak.SaksType.GENERELL_SAK, "GSAK")
         )
         return oppdater(journalpostId, req, msgId)
+    }
+
+    /**
+     * Oppretter en journalpost i Joark/dokarkiv, med eller uten dokumenter
+     *
+     * Dokumentasjon: https://confluence.adeo.no/display/BOA/opprettJournalpost
+     */
+    suspend fun opprettJournalpost(
+        journalpost: OpprettJournalpostRequest,
+        forsoekFerdigstill: Boolean,
+        callId: String
+    ): OpprettJournalpostResponse {
+        try {
+            return httpClient.post<OpprettJournalpostResponse>("$url/journalpost?forsoekFerdigstill=$forsoekFerdigstill") {
+                contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
+                headers.append("Authorization", "Bearer " + accessTokenProvider.getToken())
+                headers.append("Nav-Call-Id", callId)
+                body = journalpost
+            }
+        } catch (e: Exception) {
+            if (e is ClientRequestException) {
+                throw DokArkivStatusException(e.response.status.value, "Klarte ikke opprette journalpost! (Status: ${e.response.status.value})")
+            }
+            throw DokArkivException("Klarte ikke opprette journalpost!")
+        }
     }
 }

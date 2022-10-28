@@ -16,21 +16,3 @@ data class OppdaterJournalpostRequest(
     val avsenderMottaker: AvsenderMottaker?,
     val sak: Sak?
 )
-
-@kotlinx.serialization.Serializable
-data class Bruker(
-    val id: String,
-    val idType: String
-)
-
-@kotlinx.serialization.Serializable
-data class AvsenderMottaker(
-    val id: String,
-    val navn: String
-)
-
-@kotlinx.serialization.Serializable
-data class Sak(
-    val sakstype: String,
-    val arkivsaksystem: String,
-)
