@@ -9,7 +9,7 @@ import no.nav.helsearbeidsgiver.tokenprovider.AccessTokenProvider
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 class DokArkivClientTest {
 
@@ -26,7 +26,7 @@ class DokArkivClientTest {
             navn = "Arbeidsgiver"
         ),
         dokumenter = emptyList(),
-        datoMottatt = LocalDate.now()
+        datoMottatt = LocalDateTime.now()
     )
     private val journalpostResponse = """
             {

@@ -1,9 +1,9 @@
-@file:UseSerializers(LocalDateSerializer::class)
+@file:UseSerializers(LocalDateTimeSerializer::class)
 
 package no.nav.helsearbeidsgiver.dokarkiv
 
 import kotlinx.serialization.UseSerializers
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 /**
  * Oppretter en journalpost i Joark/dokarkiv, med eller uten dokumenter.
@@ -44,5 +44,5 @@ data class OpprettJournalpostRequest(
 
     val dokumenter: List<Dokument>,
     val sak: Sak = Sak.GENERELL,
-    val datoMottatt: LocalDate
+    val datoMottatt: LocalDateTime
 )
