@@ -1,5 +1,3 @@
 package no.nav.helsearbeidsgiver.dokarkiv
 
-open class DokArkivException(melding: String) : Exception(melding)
-
-class DokArkivStatusException(val status: Int, melding: String) : DokArkivException(melding)
+open class DokArkivException(exception: java.lang.Exception, status: Int? = null) : Exception("Klarte ikke opprette journalpost! Status: $status", exception)

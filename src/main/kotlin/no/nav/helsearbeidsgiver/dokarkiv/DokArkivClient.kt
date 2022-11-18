@@ -160,9 +160,9 @@ class DokArkivClient(
                 .body<OpprettJournalpostResponse>()
         } catch (e: Exception) {
             if (e is ClientRequestException) {
-                throw DokArkivStatusException(e.response.status.value, "Klarte ikke opprette journalpost! (Status: ${e.response.status.value})")
+                throw DokArkivException(e, e.response.status.value)
             }
-            throw DokArkivException("Klarte ikke opprette journalpost!")
+            throw DokArkivException(e)
         }
     }
 }
