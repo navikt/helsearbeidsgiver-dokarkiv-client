@@ -16,7 +16,7 @@ data class OpprettJournalpostResponse(
 
 @kotlinx.serialization.Serializable
 data class DokumentResponse(
-    val brevkode: String?,
-    val dokumentInfoId: Int?,
-    val tittel: String?
+    val brevkode: String? = null,
+    val dokumentInfoId: Int? = null,
+    val tittel: String? = null
 )
