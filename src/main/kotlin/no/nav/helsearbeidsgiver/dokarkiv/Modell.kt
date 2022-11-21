@@ -14,7 +14,7 @@ data class Dokument(
      * Dokumentets tittel, f.eks. "Søknad om foreldrepenger ved fødsel" eller "Legeerklæring".
      * Dokumentets tittel blir synlig i brukers journal på nav.no, samt i NAVs fagsystemer.
      */
-    val tittel: String,
+    val tittel: String?,
 
     /**
      * De forskjellige varientene av samme dokument, feks kan et dokument ha en XML variant og en PDF-variant.
@@ -31,7 +31,7 @@ data class DokumentVariant(
     /**
      * Gyldige filtyper: https://confluence.adeo.no/display/BOA/Filtype
      */
-    val filtype: String = "PDFA",
+    val filtype: String,
 
     /**
      * Dokumentet  som en Base64-enkodet string
@@ -41,7 +41,8 @@ data class DokumentVariant(
     /**
      * Gyldige verdier: https://confluence.adeo.no/display/BOA/Variantformat
      */
-    val variantFormat: String = "ARKIV"
+    val variantFormat: String,
+    val filnavn: String?
 )
 
 enum class Journalposttype {
@@ -98,7 +99,8 @@ data class AvsenderMottaker(
     /**
      * Navn er påkrevd for ferdigstilling, enten personnavn eller virksomhetsnavn
      */
-    val navn: String
+    val navn: String?,
+    val land: String? = null
 )
 
 enum class IdType {

@@ -154,10 +154,9 @@ class DokArkivClient(
             return httpClient.post("$url/journalpost?forsoekFerdigstill=$forsoekFerdigstill") {
                 contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
                 bearerAuth(accessTokenProvider.getToken())
-                headers.append("Nav-Call-Id", callId)
+                header("Nav-Call-Id", callId)
                 setBody(journalpost)
-            }
-                .body<OpprettJournalpostResponse>()
+            }.body<OpprettJournalpostResponse>()
         } catch (e: Exception) {
             if (e is ClientRequestException) {
                 throw DokArkivException(e, e.response.status.value)

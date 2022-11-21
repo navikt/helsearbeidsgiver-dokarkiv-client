@@ -1,9 +1,9 @@
-@file:UseSerializers(LocalDateTimeSerializer::class)
+@file:UseSerializers(LocalDateSerializer::class)
 
 package no.nav.helsearbeidsgiver.dokarkiv
 
 import kotlinx.serialization.UseSerializers
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 /**
  * Oppretter en journalpost i Joark/dokarkiv, med eller uten dokumenter.
@@ -12,22 +12,24 @@ import java.time.LocalDateTime
  */
 @kotlinx.serialization.Serializable
 data class OpprettJournalpostRequest(
-    val tema: String = "SYK",
-    val bruker: Bruker,
+    /** Temaet som forsendelsen tilhører */
+    val tema: String?,
+    /** Brukeren som forsendelsen gjelder */
+    val bruker: Bruker? = null,
     val journalposttype: Journalposttype,
-    val avsenderMottaker: AvsenderMottaker?,
+    val avsenderMottaker: AvsenderMottaker? = null,
 
     /**
      * Tittel som beskriver forsendelsen samlet, feks "Ettersendelse til søknad om foreldrepenger".
      */
-    val tittel: String,
+    val tittel: String?,
 
     /**
      * NAV-enheten som har journalført, eventuelt skal journalføre, forsendelsen.
      * Ved automatisk journalføring uten mennesker involvert skal enhet settes til "9999".
      * Konsument må sette journalfoerendeEnhet dersom tjenesten skal ferdigstille journalføringen.
      */
-    val journalfoerendeEnhet: String = "9999",
+    val journalfoerendeEnhet: String?,
 
     /**
      * Hvilken kanal kommunikasjonen har foregått i, feks ALTINN, NAV_NO.
@@ -40,9 +42,10 @@ data class OpprettJournalpostRequest(
     /**
      * Unik id for forsendelsen som kan brukes til sporing gjennom verdikjeden.
      */
-    val eksternReferanseId: String,
+    val eksternReferanseId: String?,
 
     val dokumenter: List<Dokument>,
-    val sak: Sak = Sak.GENERELL,
-    val datoMottatt: LocalDateTime
+    val sak: Sak? = null,
+    val datoMottatt: LocalDate?,
+    val behandlingsTema: String? = null
 )

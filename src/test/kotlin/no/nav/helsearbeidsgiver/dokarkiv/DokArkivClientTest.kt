@@ -9,13 +9,15 @@ import no.nav.helsearbeidsgiver.tokenprovider.AccessTokenProvider
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 class DokArkivClientTest {
 
     private val mockStsClient = mockk<AccessTokenProvider>(relaxed = true)
     private val request = OpprettJournalpostRequest(
         tittel = "",
+        journalfoerendeEnhet = null,
+        tema = null,
         journalposttype = Journalposttype.INNGAAENDE,
         kanal = "NAV_NO",
         bruker = Bruker("00000000000", IdType.FNR),
@@ -26,7 +28,7 @@ class DokArkivClientTest {
             navn = "Arbeidsgiver"
         ),
         dokumenter = emptyList(),
-        datoMottatt = LocalDateTime.now()
+        datoMottatt = LocalDate.now()
     )
     private val journalpostResponse = """
             {
