@@ -1,14 +1,15 @@
-name: Build and publish
+name: Publish
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: [Build and test]
+    types: [completed]
+    branches: [main]
 
 jobs:
-  build:
-    name: Build and push
+  publish:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
@@ -19,11 +20,6 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-
-      - name: Test and build
-        run: ./gradlew test build
-        env:
-          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish artifact
         run: ./gradlew publish
