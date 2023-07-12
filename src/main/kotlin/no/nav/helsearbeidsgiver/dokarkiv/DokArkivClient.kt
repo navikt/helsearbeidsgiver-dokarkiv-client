@@ -27,7 +27,7 @@ import java.io.IOException
 
 // NAV-enheten som personen som utfører journalføring jobber for. Ved automatisk journalføring uten
 // mennesker involvert, skal enhet settes til "9999".
-val AUTOMATISK_JOURNALFOERING_ENHET = "9999"
+private const val AUTOMATISK_JOURNALFOERING_ENHET = "9999"
 
 class DokArkivClient(
     private val url: String,
@@ -37,22 +37,6 @@ class DokArkivClient(
 
     private val httpClient = createHttpClient()
 
-    /**
-     * Tjeneste som lar konsument "switche" status på en journalpost fra midlerdidig til endelig. Dersom journalposten
-     * ikke er mulig å ferdigstille, for eksempel fordi den mangler påkrevde metadata, får konsument beskjed om hva
-     * som mangler.
-     *
-     * https://confluence.adeo.no/display/BOA/ferdigstillJournalpost
-     *
-     * Ved suksessfull ferdigstilling: 200 OK.
-     *
-     * Ved feil:
-     *
-     * 400 Bad Request. Kan ikke ferdigstille. Enten lar ikke journalposten seg ferdigstille eller så er input ugyldig.
-     * 401 Unauthorized. Konsument kaller tjenesten med ugyldig OIDC-token.
-     * 403 Forbidden. Konsument har ikke tilgang til å ferdigstille journalpost.
-     * 500 Internal Server Error. Dersom en uventet feil oppstår i dokarkiv.
-     */
     private suspend fun ferdigstill(
         journalpostId: String,
         msgId: String,
@@ -86,6 +70,22 @@ class DokArkivClient(
         }
     }
 
+
+    /**
+     * Tjeneste som lar konsument endre status på en journalpost fra midlerdidig til endelig. Dersom journalposten
+     * ikke er mulig å ferdigstille, for eksempel fordi den mangler påkrevde metadata, får konsument beskjed om hva
+     * som mangler.
+     *
+     * Dokumentasjon: [ferdigstillJournalpost](https://confluence.adeo.no/display/BOA/ferdigstillJournalpost)
+     *
+     * Ved suksessfull ferdigstilling: 200 OK.
+     *
+     * Ved feil:
+     * - 400 Bad Request. Kan ikke ferdigstille. Enten lar ikke journalposten seg ferdigstille eller så er input ugyldig.
+     * - 401 Unauthorized. Konsument kaller tjenesten med ugyldig OIDC-token.
+     * - 403 Forbidden. Konsument har ikke tilgang til å ferdigstille journalpost.
+     * - 500 Internal Server Error. Dersom en uventet feil oppstår i dokarkiv.
+     */
     suspend fun ferdigstillJournalpost(
         journalpostId: String,
         msgId: String,
@@ -93,11 +93,6 @@ class DokArkivClient(
         return ferdigstill(journalpostId, msgId, FerdigstillRequest(AUTOMATISK_JOURNALFOERING_ENHET))
     }
 
-    /**
-     *
-     *
-     * https://confluence.adeo.no/display/BOA/oppdaterJournalpost
-     */
     private suspend fun oppdater(
         journalpostId: String,
         oppdaterJournalpostRequest: OppdaterJournalpostRequest,
@@ -131,6 +126,7 @@ class DokArkivClient(
         }
     }
 
+    /** Dokumentasjon: [oppdaterJournalpost](https://confluence.adeo.no/display/BOA/oppdaterJournalpost) */
     suspend fun oppdaterJournalpost(
         journalpostId: String,
         fnr: String,
@@ -154,9 +150,9 @@ class DokArkivClient(
     }
 
     /**
-     * Oppretter en journalpost i Joark/dokarkiv, med eller uten dokumenter
+     * Oppretter en journalpost i Joark/dokarkiv, med eller uten dokumenter.
      *
-     * Dokumentasjon: https://confluence.adeo.no/display/BOA/opprettJournalpost
+     * Dokumentasjon: [opprettJournalpost](https://confluence.adeo.no/display/BOA/opprettJournalpost)
      */
     suspend fun opprettJournalpost(
         journalpost: OpprettJournalpostRequest,

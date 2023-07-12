@@ -7,11 +7,6 @@ import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import java.time.LocalDate
 
-/**
- * Oppretter en journalpost i Joark/dokarkiv, med eller uten dokumenter.
- *
- * Fullstendig dokumentasjon her: https://confluence.adeo.no/display/BOA/opprettJournalpost
- */
 @Serializable
 data class OpprettJournalpostRequest(
     /** Temaet som forsendelsen tilhører */
@@ -34,8 +29,8 @@ data class OpprettJournalpostRequest(
     /**
      * Hvilken kanal kommunikasjonen har foregått i, feks ALTINN, NAV_NO.
      * Liste over gyldige verdier:
-     * https://confluence.adeo.no/display/BOA/Mottakskanal
-     * https://confluence.adeo.no/display/BOA/Utsendingskanal
+     * - [Mottakskanal](https://confluence.adeo.no/display/BOA/Mottakskanal)
+     * - [Utsendingskanal](https://confluence.adeo.no/display/BOA/Utsendingskanal)
      */
     val kanal: String?,
 

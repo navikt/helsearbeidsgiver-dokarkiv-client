@@ -24,13 +24,13 @@ data class Dokument(
 @Serializable
 data class DokumentVariant(
 
-    /** Gyldige filtyper: https://confluence.adeo.no/display/BOA/Filtype */
+    /** Gyldige filtyper: [Filtype](https://confluence.adeo.no/display/BOA/Filtype) */
     val filtype: String,
 
     /** Dokumentet  som en Base64-enkodet string */
     val fysiskDokument: String,
 
-    /** Gyldige verdier: https://confluence.adeo.no/display/BOA/Variantformat */
+    /** Gyldige verdier: [Variantformat](https://confluence.adeo.no/display/BOA/Variantformat) */
     val variantFormat: String,
     val filnavn: String?,
 )
@@ -91,7 +91,7 @@ enum class IdType {
 @Serializable
 data class Sak(
     val sakstype: SaksType,
-    /** Liste over gyldige verdier: https://confluence.adeo.no/display/BOA/opprettJournalpost */
+    /** Liste over gyldige verdier: [opprettJournalpost](https://confluence.adeo.no/display/BOA/opprettJournalpost) */
     val fagsaksystem: String?,
     val fagsakId: String? = null,
 ) {
