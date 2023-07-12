@@ -65,7 +65,7 @@ data class Bruker(
 )
 
 /**
- * AvsenderMottaker er den som enten har mottatt (NAV er ansender)
+ * AvsenderMottaker er den som enten har mottatt (NAV er avsender)
  * eller den som har sendt (NAV er mottaker)
  *
  * Dette avgjøres av feltet
