@@ -29,13 +29,7 @@ tasks {
 
 repositories {
     mavenCentral()
-    maven {
-        credentials {
-            username = System.getenv("GITHUB_ACTOR") ?: "x-access-token"
-            password = System.getenv("GITHUB_TOKEN") ?: githubPassword
-        }
-        setUrl("https://maven.pkg.github.com/navikt/*")
-    }
+    mavenNav("*")
 }
 
 publishing {
@@ -45,13 +39,7 @@ publishing {
         }
     }
     repositories {
-        maven {
-            url = uri("https://maven.pkg.github.com/navikt/helsearbeidsgiver-${rootProject.name}")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
+        mavenNav("helsearbeidsgiver-${rootProject.name}")
     }
 }
 
@@ -68,4 +56,16 @@ dependencies {
     testImplementation("ch.qos.logback:logback-classic:$logbackVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.ktor:ktor-client-mock-jvm:$ktorVersion")
+}
+
+fun RepositoryHandler.mavenNav(repo: String): MavenArtifactRepository {
+    val githubPassword: String by project
+
+    return maven {
+        setUrl("https://maven.pkg.github.com/navikt/$repo")
+        credentials {
+            username = "x-access-token"
+            password = githubPassword
+        }
+    }
 }
