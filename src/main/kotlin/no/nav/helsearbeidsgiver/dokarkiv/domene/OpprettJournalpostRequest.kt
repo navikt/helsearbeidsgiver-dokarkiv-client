@@ -2,8 +2,9 @@
 
 package no.nav.helsearbeidsgiver.dokarkiv.domene
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import no.nav.helsearbeidsgiver.dokarkiv.LocalDateSerializer
+import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import java.time.LocalDate
 
 /**
@@ -11,7 +12,7 @@ import java.time.LocalDate
  *
  * Fullstendig dokumentasjon her: https://confluence.adeo.no/display/BOA/opprettJournalpost
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class OpprettJournalpostRequest(
     /** Temaet som forsendelsen tilhører */
     val tema: String?,
@@ -20,9 +21,7 @@ data class OpprettJournalpostRequest(
     val journalposttype: Journalposttype,
     val avsenderMottaker: AvsenderMottaker? = null,
 
-    /**
-     * Tittel som beskriver forsendelsen samlet, feks "Ettersendelse til søknad om foreldrepenger".
-     */
+    /** Tittel som beskriver forsendelsen samlet, feks "Ettersendelse til søknad om foreldrepenger". */
     val tittel: String?,
 
     /**
@@ -40,9 +39,7 @@ data class OpprettJournalpostRequest(
      */
     val kanal: String?,
 
-    /**
-     * Unik id for forsendelsen som kan brukes til sporing gjennom verdikjeden.
-     */
+    /** Unik id for forsendelsen som kan brukes til sporing gjennom verdikjeden. */
     val eksternReferanseId: String?,
 
     val dokumenter: List<Dokument>,

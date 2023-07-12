@@ -1,8 +1,8 @@
-@file:Suppress("unused")
-
 package no.nav.helsearbeidsgiver.dokarkiv.domene
 
-@kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Dokument(
     /**
      * Kode som sier noe om dokumentets innhold og oppbygning.
@@ -16,31 +16,21 @@ data class Dokument(
      */
     val tittel: String?,
 
-    /**
-     * De forskjellige varientene av samme dokument, feks kan et dokument ha en XML variant og en PDF-variant.
-     */
+    /** De forskjellige varientene av samme dokument, feks kan et dokument ha en XML variant og en PDF-variant. */
     val dokumentVarianter: List<DokumentVariant>,
 )
 
-/**
- * Holder et dokument som skal journalføres som en Base64 enkodet string
- */
-@kotlinx.serialization.Serializable
+/** Holder et dokument som skal journalføres som en Base64 enkodet string */
+@Serializable
 data class DokumentVariant(
 
-    /**
-     * Gyldige filtyper: https://confluence.adeo.no/display/BOA/Filtype
-     */
+    /** Gyldige filtyper: https://confluence.adeo.no/display/BOA/Filtype */
     val filtype: String,
 
-    /**
-     * Dokumentet  som en Base64-enkodet string
-     */
+    /** Dokumentet  som en Base64-enkodet string */
     val fysiskDokument: String,
 
-    /**
-     * Gyldige verdier: https://confluence.adeo.no/display/BOA/Variantformat
-     */
+    /** Gyldige verdier: https://confluence.adeo.no/display/BOA/Variantformat */
     val variantFormat: String,
     val filnavn: String?,
 )
@@ -65,18 +55,12 @@ enum class Journalposttype {
     NOTAT,
 }
 
-/**
- * Bruker er den posteringen gjelder
- */
-@kotlinx.serialization.Serializable
+/** Bruker er den posteringen gjelder */
+@Serializable
 data class Bruker(
-    /**
-     * Org nummer eller FNR
-     */
+    /** Org nummer eller FNR */
     val id: String,
-    /**
-     * Hva som er i id-feltet
-     */
+    /** Hva som er i id-feltet */
     val idType: IdType,
 )
 
@@ -86,33 +70,28 @@ data class Bruker(
  *
  * Dette avgjøres av feltet
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class AvsenderMottaker(
-    /**
-     * Org nummer eller FNR
-     */
+    /** Org nummer eller FNR */
     val id: String,
-    /**
-     * Hva som er i id-feltet
-     */
+    /** Hva som er i id-feltet */
     val idType: IdType,
-    /**
-     * Navn er påkrevd for ferdigstilling, enten personnavn eller virksomhetsnavn
-     */
+    /** Navn er påkrevd for ferdigstilling, enten personnavn eller virksomhetsnavn */
     val navn: String?,
     val land: String? = null,
 )
 
 enum class IdType {
-    FNR, ORGNR, HPRNR, UTL_ORG
+    FNR,
+    ORGNR,
+    HPRNR,
+    UTL_ORG,
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class Sak(
     val sakstype: SaksType,
-    /**
-     * Liste over gyldige verdier: https://confluence.adeo.no/display/BOA/opprettJournalpost
-     */
+    /** Liste over gyldige verdier: https://confluence.adeo.no/display/BOA/opprettJournalpost */
     val fagsaksystem: String?,
     val fagsakId: String? = null,
 ) {

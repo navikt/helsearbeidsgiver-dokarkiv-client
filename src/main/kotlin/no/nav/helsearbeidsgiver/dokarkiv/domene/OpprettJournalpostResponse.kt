@@ -1,6 +1,8 @@
 package no.nav.helsearbeidsgiver.dokarkiv.domene
 
-@kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class OpprettJournalpostResponse(
     val journalpostId: String,
     val journalpostFerdigstilt: Boolean? = null,
@@ -14,7 +16,7 @@ data class OpprettJournalpostResponse(
     val dokumenter: List<DokumentResponse>,
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class DokumentResponse(
     val brevkode: String? = null,
     val dokumentInfoId: Int? = null,

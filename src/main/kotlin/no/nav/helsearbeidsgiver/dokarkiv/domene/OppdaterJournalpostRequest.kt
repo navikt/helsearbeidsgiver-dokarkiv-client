@@ -1,17 +1,8 @@
 package no.nav.helsearbeidsgiver.dokarkiv.domene
 
-/**
- * val journalpostId = inngaendeJournalpost.journalpostId
- * val avsenderNr = inngaendeJournalpost.arbeidsgiverOrgnummer
- * ?: inngaendeJournalpost.arbeidsgiverPrivat
- * ?: throw RuntimeException("Mangler avsender")
- *
- * journalpostId = inngaendeJournalpost.journalpostId
- * avsender (id=avsenderNr og navn="Arbeidsgiver")
- * arkivSak (arkivSakId = inngaendeJournalpost.gsakId og arkivSakSystem = "FS22")
- *
- **/
-@kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class OppdaterJournalpostRequest(
     val bruker: Bruker?,
     val avsenderMottaker: AvsenderMottaker?,
