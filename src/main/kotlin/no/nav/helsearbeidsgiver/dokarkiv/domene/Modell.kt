@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package no.nav.helsearbeidsgiver.dokarkiv
+package no.nav.helsearbeidsgiver.dokarkiv.domene
 
 @kotlinx.serialization.Serializable
 data class Dokument(

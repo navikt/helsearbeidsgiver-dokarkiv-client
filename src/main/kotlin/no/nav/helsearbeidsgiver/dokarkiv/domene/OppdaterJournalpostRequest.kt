@@ -1,4 +1,5 @@
-package no.nav.helsearbeidsgiver.dokarkiv
+package no.nav.helsearbeidsgiver.dokarkiv.domene
+
 /**
  * val journalpostId = inngaendeJournalpost.journalpostId
  * val avsenderNr = inngaendeJournalpost.arbeidsgiverOrgnummer

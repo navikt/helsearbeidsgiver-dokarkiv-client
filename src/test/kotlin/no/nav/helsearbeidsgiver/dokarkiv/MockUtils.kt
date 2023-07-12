@@ -8,6 +8,11 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.mockk.every
+import no.nav.helsearbeidsgiver.dokarkiv.domene.AvsenderMottaker
+import no.nav.helsearbeidsgiver.dokarkiv.domene.Bruker
+import no.nav.helsearbeidsgiver.dokarkiv.domene.IdType
+import no.nav.helsearbeidsgiver.dokarkiv.domene.Journalposttype
+import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettJournalpostRequest
 import no.nav.helsearbeidsgiver.utils.test.mock.mockStatic
 import java.time.LocalDate
 

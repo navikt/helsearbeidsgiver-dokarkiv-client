@@ -14,6 +14,14 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.withCharset
+import no.nav.helsearbeidsgiver.dokarkiv.domene.AvsenderMottaker
+import no.nav.helsearbeidsgiver.dokarkiv.domene.Bruker
+import no.nav.helsearbeidsgiver.dokarkiv.domene.FerdigstillRequest
+import no.nav.helsearbeidsgiver.dokarkiv.domene.IdType
+import no.nav.helsearbeidsgiver.dokarkiv.domene.OppdaterJournalpostRequest
+import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettJournalpostRequest
+import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettJournalpostResponse
+import no.nav.helsearbeidsgiver.dokarkiv.domene.Sak
 import org.slf4j.LoggerFactory
 import java.io.IOException
 

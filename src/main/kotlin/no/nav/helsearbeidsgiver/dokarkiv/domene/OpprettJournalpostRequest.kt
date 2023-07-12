@@ -1,8 +1,9 @@
 @file:UseSerializers(LocalDateSerializer::class)
 
-package no.nav.helsearbeidsgiver.dokarkiv
+package no.nav.helsearbeidsgiver.dokarkiv.domene
 
 import kotlinx.serialization.UseSerializers
+import no.nav.helsearbeidsgiver.dokarkiv.LocalDateSerializer
 import java.time.LocalDate
 
 /**
