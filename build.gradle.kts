@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val ktorVersion: String by project
-val kotlinVersion: String by project
 val logbackVersion: String by project
 val mockkVersion: String by project
 val githubPassword: String by project
@@ -9,7 +8,7 @@ val githubPassword: String by project
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
-    id("org.jmailen.kotlinter") version "3.10.0"
+    id("org.jmailen.kotlinter")
     id("maven-publish")
 }
 
@@ -18,7 +17,7 @@ version = "0.1.9"
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 }
 
