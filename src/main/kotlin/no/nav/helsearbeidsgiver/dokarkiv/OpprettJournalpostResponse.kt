@@ -11,12 +11,12 @@ data class OpprettJournalpostResponse(
      */
     val journalStatus: String? = null,
     val melding: String? = null,
-    val dokumenter: List<DokumentResponse>
+    val dokumenter: List<DokumentResponse>,
 )
 
 @kotlinx.serialization.Serializable
 data class DokumentResponse(
     val brevkode: String? = null,
     val dokumentInfoId: Int? = null,
-    val tittel: String? = null
+    val tittel: String? = null,
 )

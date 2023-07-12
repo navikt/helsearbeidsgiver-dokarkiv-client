@@ -47,5 +47,5 @@ data class OpprettJournalpostRequest(
     val dokumenter: List<Dokument>,
     val sak: Sak? = null,
     val datoMottatt: LocalDate?,
-    val behandlingsTema: String? = null
+    val behandlingsTema: String? = null,
 )

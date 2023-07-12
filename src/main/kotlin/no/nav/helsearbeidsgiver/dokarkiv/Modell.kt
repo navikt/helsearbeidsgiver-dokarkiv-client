@@ -19,7 +19,7 @@ data class Dokument(
     /**
      * De forskjellige varientene av samme dokument, feks kan et dokument ha en XML variant og en PDF-variant.
      */
-    val dokumentVarianter: List<DokumentVariant>
+    val dokumentVarianter: List<DokumentVariant>,
 )
 
 /**
@@ -42,7 +42,7 @@ data class DokumentVariant(
      * Gyldige verdier: https://confluence.adeo.no/display/BOA/Variantformat
      */
     val variantFormat: String,
-    val filnavn: String?
+    val filnavn: String?,
 )
 
 enum class Journalposttype {
@@ -62,7 +62,7 @@ enum class Journalposttype {
      * NOTAT brukes for dokumentasjon som NAV har produsert selv og uten mål om å distribuere dette ut av NAV.
      * Eksempler på dette er forvaltningsnotater og referater fra telefonsamtaler med brukere.
      */
-    NOTAT
+    NOTAT,
 }
 
 /**
@@ -77,7 +77,7 @@ data class Bruker(
     /**
      * Hva som er i id-feltet
      */
-    val idType: IdType
+    val idType: IdType,
 )
 
 /**
@@ -100,7 +100,7 @@ data class AvsenderMottaker(
      * Navn er påkrevd for ferdigstilling, enten personnavn eller virksomhetsnavn
      */
     val navn: String?,
-    val land: String? = null
+    val land: String? = null,
 )
 
 enum class IdType {
@@ -114,7 +114,7 @@ data class Sak(
      * Liste over gyldige verdier: https://confluence.adeo.no/display/BOA/opprettJournalpost
      */
     val fagsaksystem: String?,
-    val fagsakId: String? = null
+    val fagsakId: String? = null,
 ) {
     companion object {
         val GENERELL = Sak(SaksType.GENERELL_SAK, null, null)
@@ -131,6 +131,6 @@ data class Sak(
          * GENERELL_SAK kan brukes for dokumenter som skal journalføres, men som ikke tilhører en konkret fagsak.
          * Generell sak kan ses på som brukerens "mappe" på et gitt tema.
          */
-        GENERELL_SAK
+        GENERELL_SAK,
     }
 }

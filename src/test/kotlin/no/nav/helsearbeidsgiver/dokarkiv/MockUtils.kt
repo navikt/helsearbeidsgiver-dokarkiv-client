@@ -23,10 +23,10 @@ object Mock {
         avsenderMottaker = AvsenderMottaker(
             id = "000000000",
             idType = IdType.ORGNR,
-            navn = "Arbeidsgiver"
+            navn = "Arbeidsgiver",
         ),
         dokumenter = emptyList(),
-        datoMottatt = LocalDate.now()
+        datoMottatt = LocalDate.now(),
     )
 
     val response = """
@@ -45,7 +45,7 @@ fun mockDokArkivClient(content: String, status: HttpStatusCode): DokArkivClient 
         respond(
             content = content,
             status = status,
-            headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+            headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
         )
     }
 

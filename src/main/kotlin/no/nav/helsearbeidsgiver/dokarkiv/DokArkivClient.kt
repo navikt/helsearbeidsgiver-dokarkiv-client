@@ -23,7 +23,7 @@ val AUTOMATISK_JOURNALFOERING_ENHET = "9999"
 
 class DokArkivClient(
     private val url: String,
-    private val getAccessToken: () -> String
+    private val getAccessToken: () -> String,
 ) {
     private val log: org.slf4j.Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -48,7 +48,7 @@ class DokArkivClient(
     private suspend fun ferdigstill(
         journalpostId: String,
         msgId: String,
-        ferdigstillRequest: FerdigstillRequest
+        ferdigstillRequest: FerdigstillRequest,
     ): String {
         try {
             return httpClient.patch("$url/journalpost/$journalpostId/ferdigstill") {
@@ -80,7 +80,7 @@ class DokArkivClient(
 
     suspend fun ferdigstillJournalpost(
         journalpostId: String,
-        msgId: String
+        msgId: String,
     ): String {
         return ferdigstill(journalpostId, msgId, FerdigstillRequest(AUTOMATISK_JOURNALFOERING_ENHET))
     }
@@ -93,7 +93,7 @@ class DokArkivClient(
     private suspend fun oppdater(
         journalpostId: String,
         oppdaterJournalpostRequest: OppdaterJournalpostRequest,
-        msgId: String
+        msgId: String,
     ): HttpResponse {
         try {
             return httpClient.put("$url/journalpost/$journalpostId") {
@@ -128,7 +128,7 @@ class DokArkivClient(
         fnr: String,
         isFnr: Boolean,
         arbeidsgiverNavn: String,
-        msgId: String
+        msgId: String,
     ): HttpResponse {
         val req = OppdaterJournalpostRequest(
             bruker = Bruker(
@@ -137,10 +137,10 @@ class DokArkivClient(
                     IdType.FNR
                 } else {
                     IdType.ORGNR
-                }
+                },
             ),
             avsenderMottaker = AvsenderMottaker(fnr, IdType.FNR, arbeidsgiverNavn),
-            sak = Sak(Sak.SaksType.GENERELL_SAK, "GSAK")
+            sak = Sak(Sak.SaksType.GENERELL_SAK, "GSAK"),
         )
         return oppdater(journalpostId, req, msgId)
     }
@@ -153,7 +153,7 @@ class DokArkivClient(
     suspend fun opprettJournalpost(
         journalpost: OpprettJournalpostRequest,
         forsoekFerdigstill: Boolean,
-        callId: String
+        callId: String,
     ): OpprettJournalpostResponse {
         try {
             return httpClient.post("$url/journalpost?forsoekFerdigstill=$forsoekFerdigstill") {

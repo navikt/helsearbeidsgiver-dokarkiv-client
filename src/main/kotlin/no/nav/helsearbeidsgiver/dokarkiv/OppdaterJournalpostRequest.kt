@@ -14,5 +14,5 @@ package no.nav.helsearbeidsgiver.dokarkiv
 data class OppdaterJournalpostRequest(
     val bruker: Bruker?,
     val avsenderMottaker: AvsenderMottaker?,
-    val sak: Sak?
+    val sak: Sak?,
 )
