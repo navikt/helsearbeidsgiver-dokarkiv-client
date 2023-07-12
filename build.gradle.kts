@@ -1,9 +1,7 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-val ktorVersion: String by project
-val logbackVersion: String by project
-val mockkVersion: String by project
-val githubPassword: String by project
+group = "no.nav.helsearbeidsgiver"
+version = "0.1.9"
 
 plugins {
     kotlin("jvm")
@@ -12,12 +10,9 @@ plugins {
     id("maven-publish")
 }
 
-group = "no.nav.helsearbeidsgiver"
-version = "0.1.9"
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "17"
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
@@ -25,6 +20,10 @@ tasks {
     test {
         useJUnitPlatform()
     }
+}
+
+java {
+    withSourcesJar()
 }
 
 repositories {
@@ -44,6 +43,10 @@ publishing {
 }
 
 dependencies {
+    val ktorVersion: String by project
+    val logbackVersion: String by project
+    val mockkVersion: String by project
+
     implementation("io.ktor:ktor-client-core-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-json-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
@@ -52,6 +55,7 @@ dependencies {
     implementation("com.nimbusds:nimbus-jose-jwt:9.22")
     implementation("no.nav.helsearbeidsgiver:tokenprovider:0.1.3")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.0")
+
     testImplementation(kotlin("test"))
     testImplementation("ch.qos.logback:logback-classic:$logbackVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
