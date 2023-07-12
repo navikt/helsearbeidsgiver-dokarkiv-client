@@ -44,21 +44,19 @@ publishing {
 
 dependencies {
     val ktorVersion: String by project
-    val logbackVersion: String by project
     val mockkVersion: String by project
+    val utilsVersion: String by project
 
-    implementation("io.ktor:ktor-client-core-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-client-json-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-client-apache5:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("com.nimbusds:nimbus-jose-jwt:9.22")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.0")
+    implementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
 
     testImplementation(kotlin("test"))
-    testImplementation("ch.qos.logback:logback-classic:$logbackVersion")
+    testImplementation(testFixtures("no.nav.helsearbeidsgiver:utils:$utilsVersion"))
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("io.ktor:ktor-client-mock-jvm:$ktorVersion")
 }
 
 fun RepositoryHandler.mavenNav(repo: String): MavenArtifactRepository {

@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.dokarkiv
 
-import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.accept
@@ -24,10 +23,11 @@ val AUTOMATISK_JOURNALFOERING_ENHET = "9999"
 
 class DokArkivClient(
     private val url: String,
-    private val httpClient: HttpClient,
     private val getAccessToken: () -> String
 ) {
     private val log: org.slf4j.Logger = LoggerFactory.getLogger(this.javaClass.name)
+
+    private val httpClient = createHttpClient()
 
     /**
      * Tjeneste som lar konsument "switche" status på en journalpost fra midlerdidig til endelig. Dersom journalposten
