@@ -53,7 +53,6 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("com.nimbusds:nimbus-jose-jwt:9.22")
-    implementation("no.nav.helsearbeidsgiver:tokenprovider:0.1.3")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.0")
 
     testImplementation(kotlin("test"))

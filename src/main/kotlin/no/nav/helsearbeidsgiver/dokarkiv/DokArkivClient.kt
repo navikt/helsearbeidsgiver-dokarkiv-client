@@ -3,13 +3,18 @@ package no.nav.helsearbeidsgiver.dokarkiv
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.request.*
+import io.ktor.client.request.accept
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.header
+import io.ktor.client.request.patch
+import io.ktor.client.request.post
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.withCharset
-import no.nav.helsearbeidsgiver.tokenprovider.AccessTokenProvider
 import org.slf4j.LoggerFactory
 import java.io.IOException
 
@@ -19,8 +24,8 @@ val AUTOMATISK_JOURNALFOERING_ENHET = "9999"
 
 class DokArkivClient(
     private val url: String,
-    private val accessTokenProvider: AccessTokenProvider,
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val getAccessToken: () -> String
 ) {
     private val log: org.slf4j.Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -49,7 +54,7 @@ class DokArkivClient(
             return httpClient.patch("$url/journalpost/$journalpostId/ferdigstill") {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                bearerAuth(accessTokenProvider.getToken())
+                bearerAuth(getAccessToken())
                 header("Nav-Callid", msgId)
                 setBody(ferdigstillRequest)
             }
@@ -94,7 +99,7 @@ class DokArkivClient(
             return httpClient.put("$url/journalpost/$journalpostId") {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                bearerAuth(accessTokenProvider.getToken())
+                bearerAuth(getAccessToken())
                 header("Nav-Callid", msgId)
                 setBody(oppdaterJournalpostRequest)
             }
@@ -153,7 +158,7 @@ class DokArkivClient(
         try {
             return httpClient.post("$url/journalpost?forsoekFerdigstill=$forsoekFerdigstill") {
                 contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-                bearerAuth(accessTokenProvider.getToken())
+                bearerAuth(getAccessToken())
                 header("Nav-Call-Id", callId)
                 setBody(journalpost)
             }.body<OpprettJournalpostResponse>()

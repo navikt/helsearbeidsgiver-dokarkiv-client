@@ -3,9 +3,7 @@
 package no.nav.helsearbeidsgiver.dokarkiv
 
 import io.ktor.http.HttpStatusCode
-import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import no.nav.helsearbeidsgiver.tokenprovider.AccessTokenProvider
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -13,7 +11,6 @@ import java.time.LocalDate
 
 class DokArkivClientTest {
 
-    private val mockStsClient = mockk<AccessTokenProvider>(relaxed = true)
     private val request = OpprettJournalpostRequest(
         tittel = "",
         journalfoerendeEnhet = null,
@@ -43,7 +40,7 @@ class DokArkivClientTest {
     @Suppress("NonAsciiCharacters")
     @Test
     fun `Skal ferdigstille journalpost når man får status OK`() {
-        val dokArkivClient = DokArkivClient("", mockStsClient, buildHttpClientText(HttpStatusCode.OK, ""))
+        val dokArkivClient = DokArkivClient("", buildHttpClientText(HttpStatusCode.OK, "")) { "mock access token" }
         val resultat = runBlocking {
             dokArkivClient.ferdigstillJournalpost("111", "1001")
         }
@@ -52,7 +49,7 @@ class DokArkivClientTest {
 
     @Test
     fun `Skal håndtere at ferdigstilling av journalpost feiler`() {
-        val dokArkivClient = DokArkivClient("", mockStsClient, buildHttpClientText(HttpStatusCode.InternalServerError, ""))
+        val dokArkivClient = DokArkivClient("", buildHttpClientText(HttpStatusCode.InternalServerError, "")) { "mock access token" }
         assertThrows<Exception> {
             runBlocking {
                 dokArkivClient.ferdigstillJournalpost("111", "1001")
@@ -62,7 +59,7 @@ class DokArkivClientTest {
 
     @Test
     fun `Skal opprette journalpost`() {
-        val dokArkivClient = DokArkivClient("", mockStsClient, buildHttpClientText(HttpStatusCode.OK, journalpostResponse))
+        val dokArkivClient = DokArkivClient("", buildHttpClientText(HttpStatusCode.OK, journalpostResponse)) { "mock access token" }
         val response = runBlocking {
             dokArkivClient.opprettJournalpost(request, false, "1001")
         }
@@ -71,7 +68,7 @@ class DokArkivClientTest {
 
     @Test
     fun `Skal håndtere at opprett journalpost feiler`() {
-        val dokArkivClient = DokArkivClient("", mockStsClient, buildHttpClientText(HttpStatusCode.InternalServerError, journalpostResponse))
+        val dokArkivClient = DokArkivClient("", buildHttpClientText(HttpStatusCode.InternalServerError, journalpostResponse)) { "fake token" }
         assertThrows<DokArkivException> {
             runBlocking {
                 dokArkivClient.opprettJournalpost(request, false, "1001")
