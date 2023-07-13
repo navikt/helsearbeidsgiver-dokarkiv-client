@@ -2,31 +2,24 @@ package no.nav.helsearbeidsgiver.dokarkiv
 
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.http.withCharset
-import no.nav.helsearbeidsgiver.dokarkiv.domene.AvsenderMottaker
-import no.nav.helsearbeidsgiver.dokarkiv.domene.Bruker
+import no.nav.helsearbeidsgiver.dokarkiv.domene.Avsender
+import no.nav.helsearbeidsgiver.dokarkiv.domene.Dokument
 import no.nav.helsearbeidsgiver.dokarkiv.domene.FerdigstillRequest
-import no.nav.helsearbeidsgiver.dokarkiv.domene.IdType
-import no.nav.helsearbeidsgiver.dokarkiv.domene.OppdaterJournalpostRequest
-import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettJournalpostRequest
-import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettJournalpostResponse
-import no.nav.helsearbeidsgiver.dokarkiv.domene.Sak
+import no.nav.helsearbeidsgiver.dokarkiv.domene.GjelderPerson
+import no.nav.helsearbeidsgiver.dokarkiv.domene.OppdaterRequest
+import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillRequest
+import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillResponse
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.io.IOException
-
-// NAV-enheten som personen som utfører journalføring jobber for. Ved automatisk journalføring uten
-// mennesker involvert, skal enhet settes til "9999".
-private const val AUTOMATISK_JOURNALFOERING_ENHET = "9999"
+import java.time.LocalDate
 
 class DokArkivClient(
     private val url: String,
@@ -37,29 +30,47 @@ class DokArkivClient(
     private val httpClient = createHttpClient()
 
     /**
-     * Oppretter en journalpost i Joark/dokarkiv, med eller uten dokumenter.
+     * Oppretter en journalpost i Joark/dokarkiv, med eller uten dokumenter, og forsøker å ferdigstille.
      *
      * Dokumentasjon: [opprettJournalpost](https://confluence.adeo.no/display/BOA/opprettJournalpost)
      */
-    suspend fun opprettJournalpost(
-        journalpost: OpprettJournalpostRequest,
-        forsoekFerdigstill: Boolean,
+    suspend fun opprettOgFerdigstillJournalpost(
+        behandlingsTema: String,
+        /** Tittel som beskriver forsendelsen samlet, feks "Ettersendelse til søknad om foreldrepenger". */
+        tittel: String,
+        gjelderPerson: GjelderPerson,
+        avsender: Avsender,
+        datoMottatt: LocalDate,
+        dokumenter: List<Dokument>,
+        /** Unik id for forsendelsen som kan brukes til sporing gjennom verdikjeden. */
+        eksternReferanseId: String,
         callId: String,
-    ): OpprettJournalpostResponse =
-        try {
-            httpClient.post("$url/journalpost?forsoekFerdigstill=$forsoekFerdigstill") {
-                contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
+    ): OpprettOgFerdigstillResponse {
+        val request = OpprettOgFerdigstillRequest(
+            behandlingsTema = behandlingsTema,
+            tittel = tittel,
+            bruker = gjelderPerson.tilBruker(),
+            avsenderMottaker = avsender.tilAvsenderMottaker(),
+            datoMottatt = datoMottatt,
+            dokumenter = dokumenter,
+            eksternReferanseId = eksternReferanseId,
+        )
+
+        return try {
+            httpClient.post("$url/journalpost?forsoekFerdigstill=true") {
+                contentType(ContentType.Application.Json)
                 bearerAuth(getAccessToken())
                 navCallId(callId)
-                setBody(journalpost)
+                setBody(request)
             }
-                .body<OpprettJournalpostResponse>()
+                .body()
         } catch (e: Exception) {
             if (e is ClientRequestException) {
                 throw DokArkivException(e, e.response.status.value)
             }
             throw DokArkivException(e)
         }
+    }
 
     /**
      * NB! I skrivende stund ikke i bruk av noen apper. Må testes bedre før den tas i bruk.
@@ -68,41 +79,30 @@ class DokArkivClient(
      */
     suspend fun oppdaterJournalpost(
         journalpostId: String,
-        fnr: String,
-        arbeidsgiverNavn: String,
+        gjelderPerson: GjelderPerson,
+        avsender: Avsender,
         callId: String,
-    ): HttpResponse {
+    ) {
         val idFragment = "journalpostId=[$journalpostId] callId=[$callId]"
 
-        val request = OppdaterJournalpostRequest(
-            bruker = Bruker(
-                id = fnr,
-                idType = IdType.FNR,
-            ),
-            avsenderMottaker = AvsenderMottaker(
-                id = fnr,
-                idType = IdType.FNR,
-                navn = arbeidsgiverNavn,
-            ),
-            sak = Sak.GENERELL,
+        val request = OppdaterRequest(
+            bruker = gjelderPerson.tilBruker(),
+            avsenderMottaker = avsender.tilAvsenderMottaker(),
         )
 
-        return runCatching {
+        runCatching {
             httpClient.put("$url/journalpost/$journalpostId") {
                 contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
                 bearerAuth(getAccessToken())
                 navCallId(callId)
                 setBody(request)
             }
-                .body<HttpResponse>()
-                .also {
-                    logger.info("Oppdatering av journalpost OK. $idFragment")
-                }
         }
-            .getOrElse {
+            .onFailure {
                 haandterFeil(it, "oppdatering", idFragment)
             }
+
+        logger.info("Oppdatering av journalpost OK. $idFragment")
     }
 
     /**
@@ -113,25 +113,24 @@ class DokArkivClient(
     suspend fun ferdigstillJournalpost(
         journalpostId: String,
         callId: String,
-    ): String {
+    ) {
         val idFragment = "journalpostId=[$journalpostId] callId=[$callId]"
 
-        val request = FerdigstillRequest(AUTOMATISK_JOURNALFOERING_ENHET)
+        val request = FerdigstillRequest()
 
-        return runCatching {
+        runCatching {
             httpClient.patch("$url/journalpost/$journalpostId/ferdigstill") {
                 contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
                 bearerAuth(getAccessToken())
                 navCallId(callId)
                 setBody(request)
             }
-                .body<String>()
-                .also { logger.info("Ferdigstilling av journalpost OK. $idFragment") }
         }
-            .getOrElse {
+            .onFailure {
                 haandterFeil(it, "ferdigstilling", idFragment)
             }
+
+        logger.info("Ferdigstilling av journalpost OK. $idFragment")
     }
 
     private fun haandterFeil(feil: Throwable, handling: String, idFragment: String): Nothing {

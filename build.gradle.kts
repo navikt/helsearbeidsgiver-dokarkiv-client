@@ -45,6 +45,7 @@ publishing {
 dependencies {
     val kotestVersion: String by project
     val ktorVersion: String by project
+    val logbackVersion: String by project
     val mockkVersion: String by project
     val utilsVersion: String by project
 
@@ -59,6 +60,8 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
+
+    testRuntimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
 }
 
 fun RepositoryHandler.mavenNav(repo: String): MavenArtifactRepository {
