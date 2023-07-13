@@ -8,42 +8,11 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.mockk.every
-import no.nav.helsearbeidsgiver.dokarkiv.domene.AvsenderMottaker
-import no.nav.helsearbeidsgiver.dokarkiv.domene.Bruker
-import no.nav.helsearbeidsgiver.dokarkiv.domene.IdType
-import no.nav.helsearbeidsgiver.dokarkiv.domene.Journalposttype
-import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettJournalpostRequest
+import no.nav.helsearbeidsgiver.dokarkiv.domene.Avsender
+import no.nav.helsearbeidsgiver.dokarkiv.domene.DokumentInfoId
+import no.nav.helsearbeidsgiver.dokarkiv.domene.GjelderPerson
+import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillResponse
 import no.nav.helsearbeidsgiver.utils.test.mock.mockStatic
-import java.time.LocalDate
-
-object Mock {
-    val request = OpprettJournalpostRequest(
-        tittel = "",
-        journalfoerendeEnhet = null,
-        tema = null,
-        journalposttype = Journalposttype.INNGAAENDE,
-        kanal = "NAV_NO",
-        bruker = Bruker("00000000000", IdType.FNR),
-        eksternReferanseId = "#",
-        avsenderMottaker = AvsenderMottaker(
-            id = "000000000",
-            idType = IdType.ORGNR,
-            navn = "Arbeidsgiver",
-        ),
-        dokumenter = emptyList(),
-        datoMottatt = LocalDate.now(),
-    )
-
-    val response = """
-        {
-            "journalpostId": "123",
-            "journalpostFerdigstilt": true,
-            "journalStatus": "STATUS",
-            "melding": "",
-            "dokumenter": []
-        }
-    """.trimIndent()
-}
 
 fun mockDokArkivClient(content: String, status: HttpStatusCode): DokArkivClient {
     val mockEngine = MockEngine {
@@ -61,3 +30,30 @@ fun mockDokArkivClient(content: String, status: HttpStatusCode): DokArkivClient 
         DokArkivClient("mock url") { "mock access token" }
     }
 }
+
+object Mock {
+    val opprettOgFerdigstillResponse = OpprettOgFerdigstillResponse(
+        journalpostId = "jid-klassisk-pære",
+        journalpostFerdigstilt = true,
+        melding = "Ha en fin dag!",
+        dokumenter = listOf(
+            DokumentInfoId(
+                dokumentInfoId = "dok-id-den-første",
+            ),
+            DokumentInfoId(
+                dokumentInfoId = "dok-id-den-andre",
+            ),
+        ),
+    )
+}
+
+fun mockGjelderPerson(): GjelderPerson =
+    GjelderPerson(
+        fnr = "fnr-apekatt",
+    )
+
+fun mockAvsender(): Avsender =
+    Avsender.Organisasjon(
+        orgnr = "orgnr-isenkram",
+        navn = "Iskrem og isenkram AS",
+    )
