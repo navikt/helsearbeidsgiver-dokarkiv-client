@@ -1,14 +1,13 @@
 package no.nav.helsearbeidsgiver.dokarkiv
 
 import io.ktor.client.call.body
-import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.helsearbeidsgiver.dokarkiv.domene.Avsender
 import no.nav.helsearbeidsgiver.dokarkiv.domene.Dokument
@@ -18,7 +17,6 @@ import no.nav.helsearbeidsgiver.dokarkiv.domene.OppdaterRequest
 import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillRequest
 import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillResponse
 import no.nav.helsearbeidsgiver.utils.log.logger
-import java.io.IOException
 import java.time.LocalDate
 
 class DokArkivClient(
@@ -46,6 +44,8 @@ class DokArkivClient(
         eksternReferanseId: String,
         callId: String,
     ): OpprettOgFerdigstillResponse {
+        val idFragment = "eksternReferanseId=[$eksternReferanseId] callId=[$callId]"
+
         val request = OpprettOgFerdigstillRequest(
             behandlingsTema = behandlingsTema,
             tittel = tittel,
@@ -56,20 +56,23 @@ class DokArkivClient(
             eksternReferanseId = eksternReferanseId,
         )
 
-        return try {
+        return runCatching {
             httpClient.post("$url/journalpost?forsoekFerdigstill=true") {
                 contentType(ContentType.Application.Json)
                 bearerAuth(getAccessToken())
                 navCallId(callId)
                 setBody(request)
             }
-                .body()
-        } catch (e: Exception) {
-            if (e is ClientRequestException) {
-                throw DokArkivException(e, e.response.status.value)
-            }
-            throw DokArkivException(e)
+                .body<OpprettOgFerdigstillResponse>()
         }
+            .onSuccess {
+                if (!it.journalpostFerdigstilt) {
+                    logger.error("Journalpost ble opprettet, men ikke ferdigstilt. journalpostId=[${it.journalpostId}] $idFragment")
+                }
+            }
+            .getOrElse {
+                loggFeilrespons(it, "opprettOgFerdigstill", idFragment)
+            }
     }
 
     /**
@@ -99,7 +102,7 @@ class DokArkivClient(
             }
         }
             .onFailure {
-                haandterFeil(it, "oppdatering", idFragment)
+                loggFeilrespons(it, "oppdatering", idFragment)
             }
 
         logger.info("Oppdatering av journalpost OK. $idFragment")
@@ -127,29 +130,17 @@ class DokArkivClient(
             }
         }
             .onFailure {
-                haandterFeil(it, "ferdigstilling", idFragment)
+                loggFeilrespons(it, "ferdigstilling", idFragment)
             }
 
         logger.info("Ferdigstilling av journalpost OK. $idFragment")
     }
 
-    private fun haandterFeil(feil: Throwable, handling: String, idFragment: String): Nothing {
-        logger.error("Dokarkiv svarte med feilmelding ved $handling av journalpost. $idFragment", feil)
-
-        if (feil is ClientRequestException) {
-            if (feil.response.status == HttpStatusCode.NotFound) {
-                "$handling: Journalposten finnes ikke. $idFragment".let {
-                    logger.error(it)
-                    throw RuntimeException(it)
-                }
-            } else {
-                "$handling: Fikk http status ${feil.response.status}. $idFragment".let {
-                    logger.error(it)
-                    throw RuntimeException(it)
-                }
-            }
+    private fun loggFeilrespons(feil: Throwable, handling: String, idFragment: String): Nothing {
+        if (feil is ResponseException) {
+            logger.error("$handling: dokarkiv svarte med HTTP-status ${feil.response.status}. $idFragment", feil)
         }
 
-        throw IOException("Dokarkiv svarte med feilmelding ved $handling av journalpost. $idFragment")
+        throw feil
     }
 }

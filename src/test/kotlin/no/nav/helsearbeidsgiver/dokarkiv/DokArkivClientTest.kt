@@ -4,44 +4,42 @@ import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ServerResponseException
 import io.ktor.http.HttpStatusCode
 import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillResponse
 import no.nav.helsearbeidsgiver.utils.json.toJsonStr
-import java.io.IOException
 import java.time.LocalDate
 
 class DokArkivClientTest : FunSpec({
 
     context("opprettOgFerdigstillJournalpost") {
         test("Journalpost opprettes og ferdigstilles") {
+            val expected = mockOpprettOgFerdigstillResponse()
+
             val mockDokArkivClient = mockDokArkivClient(
-                Mock.opprettOgFerdigstillResponse.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
+                expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
                 HttpStatusCode.OK,
             )
 
-            val response = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
+            val actual = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
 
-            response shouldBe Mock.opprettOgFerdigstillResponse
+            actual shouldBe expected
         }
 
-        test("BadRequest gir ClientRequestException med status BadRequest som wrappes med status i DokArkivException") {
-            val mockDokArkivClient = mockDokArkivClient("", HttpStatusCode.BadRequest)
+        test("Feiler ikke dersom journalpost opprettes, men ikke ferdigstilles") {
+            val expected = mockOpprettOgFerdigstillResponse().copy(
+                journalpostFerdigstilt = false,
+            )
 
-            val e = shouldThrowExactly<DokArkivException> {
-                mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
-            }
+            val mockDokArkivClient = mockDokArkivClient(
+                expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
+                HttpStatusCode.OK,
+            )
 
-            e.message shouldBe "Klarte ikke opprette journalpost! Status: 400"
-        }
+            val actual = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
 
-        test("InternalServerError gir ServerResponseException med status InternalServerError som wrappes _uten_ status i DokArkivException") {
-            val mockDokArkivClient = mockDokArkivClient("", HttpStatusCode.InternalServerError)
-
-            val e = shouldThrowExactly<DokArkivException> {
-                mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
-            }
-
-            e.message shouldBe "Klarte ikke opprette journalpost! Status: null"
+            actual shouldBe expected
         }
     }
 
@@ -53,27 +51,6 @@ class DokArkivClientTest : FunSpec({
                 mockDokArkivClient.oppdaterJournalpost("jid-doven-isolasjon", mockGjelderPerson(), mockAvsender(), "cid-krigersk-hamster")
             }
         }
-
-        test("BadRequest gir ClientRequestException med status BadRequest som wrappes i RuntimeException") {
-            val mockDokArkivClient = mockDokArkivClient("", HttpStatusCode.BadRequest)
-
-            val e = shouldThrowExactly<RuntimeException> {
-                mockDokArkivClient.oppdaterJournalpost("jid-doven-isolasjon", mockGjelderPerson(), mockAvsender(), "cid-krigersk-hamster")
-            }
-
-            e.message shouldBe "oppdatering: Fikk http status 400 Bad Request. journalpostId=[jid-doven-isolasjon] callId=[cid-krigersk-hamster]"
-        }
-
-        test("InternalServerError gir ServerResponseException med status InternalServerError som wrappes i IOException") {
-            val mockDokArkivClient = mockDokArkivClient("", HttpStatusCode.InternalServerError)
-
-            val e = shouldThrowExactly<IOException> {
-                mockDokArkivClient.oppdaterJournalpost("jid-doven-isolasjon", mockGjelderPerson(), mockAvsender(), "cid-krigersk-hamster")
-            }
-
-            e.message shouldBe "Dokarkiv svarte med feilmelding ved oppdatering av journalpost. " +
-                "journalpostId=[jid-doven-isolasjon] callId=[cid-krigersk-hamster]"
-        }
     }
 
     context("ferdigstillJournalpost") {
@@ -84,26 +61,40 @@ class DokArkivClientTest : FunSpec({
                 mockDokArkivClient.ferdigstillJournalpost("jid-lystig-lemen", "cid-kjølig-krone")
             }
         }
+    }
 
-        test("BadRequest gir ClientRequestException med status BadRequest som wrappes i RuntimeException") {
-            val mockDokArkivClient = mockDokArkivClient("", HttpStatusCode.BadRequest)
+    context("Feilrespons") {
+        listOf<Pair<String, suspend DokArkivClient.() -> Unit>>(
+            "opprettOgFerdigstillJournalpost" to { opprettOgFerdigstillJournalpostMedMockInput() },
+            "oppdaterJournalpost" to {
+                oppdaterJournalpost("jid-doven-isolasjon", mockGjelderPerson(), mockAvsender(), "cid-krigersk-hamster")
+            },
+            "ferdigstillJournalpost" to { ferdigstillJournalpost("jid-lystig-lemen", "cid-kjølig-krone") },
+        )
+            .forEach { (metodeNavn, metode) ->
 
-            val e = shouldThrowExactly<RuntimeException> {
-                mockDokArkivClient.ferdigstillJournalpost("jid-lystig-lemen", "cid-kjølig-krone")
+                context(metodeNavn) {
+                    test("BadRequest gir ClientRequestException med status BadRequest") {
+                        val mockDokArkivClient = mockDokArkivClient("", HttpStatusCode.BadRequest)
+
+                        val e = shouldThrowExactly<ClientRequestException> {
+                            mockDokArkivClient.metode()
+                        }
+
+                        e.response.status shouldBe HttpStatusCode.BadRequest
+                    }
+
+                    test("InternalServerError gir ServerResponseException med status InternalServerError") {
+                        val mockDokArkivClient = mockDokArkivClient("", HttpStatusCode.InternalServerError)
+
+                        val e = shouldThrowExactly<ServerResponseException> {
+                            mockDokArkivClient.metode()
+                        }
+
+                        e.response.status shouldBe HttpStatusCode.InternalServerError
+                    }
+                }
             }
-
-            e.message shouldBe "ferdigstilling: Fikk http status 400 Bad Request. journalpostId=[jid-lystig-lemen] callId=[cid-kjølig-krone]"
-        }
-
-        test("InternalServerError gir ServerResponseException med status InternalServerError som wrappes i IOException") {
-            val mockDokArkivClient = mockDokArkivClient("", HttpStatusCode.InternalServerError)
-
-            val e = shouldThrowExactly<IOException> {
-                mockDokArkivClient.ferdigstillJournalpost("jid-lystig-lemen", "cid-kjølig-krone")
-            }
-
-            e.message shouldBe "Dokarkiv svarte med feilmelding ved ferdigstilling av journalpost. journalpostId=[jid-lystig-lemen] callId=[cid-kjølig-krone]"
-        }
     }
 })
 

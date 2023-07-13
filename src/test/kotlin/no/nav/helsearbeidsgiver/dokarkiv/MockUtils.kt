@@ -31,8 +31,8 @@ fun mockDokArkivClient(content: String, status: HttpStatusCode): DokArkivClient 
     }
 }
 
-object Mock {
-    val opprettOgFerdigstillResponse = OpprettOgFerdigstillResponse(
+fun mockOpprettOgFerdigstillResponse(): OpprettOgFerdigstillResponse =
+    OpprettOgFerdigstillResponse(
         journalpostId = "jid-klassisk-pære",
         journalpostFerdigstilt = true,
         melding = "Ha en fin dag!",
@@ -45,7 +45,6 @@ object Mock {
             ),
         ),
     )
-}
 
 fun mockGjelderPerson(): GjelderPerson =
     GjelderPerson(
