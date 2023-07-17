@@ -12,7 +12,6 @@ import java.time.LocalDate
 @Serializable
 @OptIn(ExperimentalSerializationApi::class)
 internal data class OpprettOgFerdigstillRequest(
-    val behandlingsTema: String,
     /** Tittel som beskriver forsendelsen samlet, feks "Ettersendelse til søknad om foreldrepenger". */
     val tittel: String,
     /** Brukeren som forsendelsen gjelder */

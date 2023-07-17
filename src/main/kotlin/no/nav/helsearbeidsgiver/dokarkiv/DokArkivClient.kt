@@ -33,7 +33,6 @@ class DokArkivClient(
      * Dokumentasjon: [opprettJournalpost](https://confluence.adeo.no/display/BOA/opprettJournalpost)
      */
     suspend fun opprettOgFerdigstillJournalpost(
-        behandlingsTema: String,
         /** Tittel som beskriver forsendelsen samlet, feks "Ettersendelse til søknad om foreldrepenger". */
         tittel: String,
         gjelderPerson: GjelderPerson,
@@ -47,7 +46,6 @@ class DokArkivClient(
         val idFragment = "eksternReferanseId=[$eksternReferanseId] callId=[$callId]"
 
         val request = OpprettOgFerdigstillRequest(
-            behandlingsTema = behandlingsTema,
             tittel = tittel,
             bruker = gjelderPerson.tilBruker(),
             avsenderMottaker = avsender.tilAvsenderMottaker(),

@@ -100,7 +100,6 @@ class DokArkivClientTest : FunSpec({
 
 private suspend fun DokArkivClient.opprettOgFerdigstillJournalpostMedMockInput(): OpprettOgFerdigstillResponse =
     opprettOgFerdigstillJournalpost(
-        behandlingsTema = "",
         tittel = "",
         gjelderPerson = mockGjelderPerson(),
         avsender = mockAvsender(),
