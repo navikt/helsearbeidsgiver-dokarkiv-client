@@ -71,23 +71,15 @@ class DokArkivClient(
                     logger.error("Journalpost ble opprettet, men ikke ferdigstilt. journalpostId=[${it.journalpostId}] $idFragment")
                 }
             }
-            .onFailure {
-                if (it is ClientRequestException && it.response.status == HttpStatusCode.Conflict) {
-                    val journalpost = runBlocking { it.response.body<OpprettOgFerdigstillResponse>() }
-                    return if (journalpost.journalpostId.isNotEmpty()) {
-                        logger.info(
-                            "Fikk 409 Conflict ved journalføring med referanse(id=${request.eksternReferanseId}) og tittel (${request.tittel}. " +
-                                "Bruker eksisterende journalpostId (${journalpost.journalpostId}) fra respons.",
-                        )
-                        journalpost
+            .recover {
+                val eksisterendeJournalpost =
+                    if (it is ClientRequestException && it.response.status == HttpStatusCode.Conflict) {
+                        lesEkstisterende(it, request)
                     } else {
-                        logger.error(
-                            "Fikk 409 Conflict ved journalføring med referanse(id=${request.eksternReferanseId}) og tittel (${request.tittel}, " +
-                                "men mangler journalpostId fra respons.",
-                        )
-                        throw it
+                        null
                     }
-                }
+
+                eksisterendeJournalpost ?: throw it
             }
             .getOrElse {
                 loggFeilrespons(it, "opprettOgFerdigstill", idFragment)
@@ -153,6 +145,23 @@ class DokArkivClient(
             }
 
         logger.info("Ferdigstilling av journalpost OK. $idFragment")
+    }
+
+    private fun lesEkstisterende(feil: ClientRequestException, request: OpprettOgFerdigstillRequest): OpprettOgFerdigstillResponse? {
+        val journalpost = runBlocking { feil.response.body<OpprettOgFerdigstillResponse>() }
+        return if (journalpost.journalpostId.isNotEmpty()) {
+            logger.info(
+                "Fikk 409 Conflict ved journalføring med referanse(id=${request.eksternReferanseId}) og tittel (${request.tittel}. " +
+                    "Bruker eksisterende journalpostId (${journalpost.journalpostId}) fra respons.",
+            )
+            journalpost
+        } else {
+            logger.error(
+                "Fikk 409 Conflict ved journalføring med referanse(id=${request.eksternReferanseId}) og tittel (${request.tittel}, " +
+                    "men mangler journalpostId fra respons.",
+            )
+            null
+        }
     }
 
     private fun loggFeilrespons(feil: Throwable, handling: String, idFragment: String): Nothing {
