@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.dokarkiv
 
 import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.patch
@@ -8,7 +9,10 @@ import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.util.reflect.instanceOf
+import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.dokarkiv.domene.Avsender
 import no.nav.helsearbeidsgiver.dokarkiv.domene.Dokument
 import no.nav.helsearbeidsgiver.dokarkiv.domene.FerdigstillRequest
@@ -66,6 +70,26 @@ class DokArkivClient(
             .onSuccess {
                 if (!it.journalpostFerdigstilt) {
                     logger.error("Journalpost ble opprettet, men ikke ferdigstilt. journalpostId=[${it.journalpostId}] $idFragment")
+                }
+            }
+            .onFailure {
+                if (it.instanceOf(ClientRequestException::class)) {
+                    it as ClientRequestException
+                    if (it.response.status == HttpStatusCode.Conflict) {
+                        val journalpost = runBlocking { it.response.body<OpprettOgFerdigstillResponse>() }
+                        if (!journalpost.journalpostId.isNullOrEmpty()) {
+                            logger.info(
+                                "Fikk 409 Conflict ved journalføring med referanse(id=${request.eksternReferanseId}) og tittel (${request.tittel}. " +
+                                    "Bruker eksisterende journalpostId (${journalpost.journalpostId}) fra respons.",
+                            )
+                            return journalpost
+                        } else {
+                            logger.error(
+                                "Fikk 409 Conflict ved journalføring med referanse(id=${request.eksternReferanseId}) og tittel (${request.tittel}, " +
+                                    "men mangler journalpostId fra respons.",
+                            )
+                        }
+                    }
                 }
             }
             .getOrElse {

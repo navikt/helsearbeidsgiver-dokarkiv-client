@@ -27,6 +27,16 @@ class DokArkivClientTest : FunSpec({
             actual shouldBe expected
         }
 
+        test("Håndter konflikt (status 409) ved duplikat forespørsel") {
+            val expected = mockOpprettOgFerdigstillResponse()
+            val mockDokArkivClient = mockDokArkivClient(
+                expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
+                HttpStatusCode.Conflict,
+            )
+            val actual = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
+            actual.journalpostId shouldBe expected.journalpostId
+        }
+
         test("Feiler ikke dersom journalpost opprettes, men ikke ferdigstilles") {
             val expected = mockOpprettOgFerdigstillResponse().copy(
                 journalpostFerdigstilt = false,
