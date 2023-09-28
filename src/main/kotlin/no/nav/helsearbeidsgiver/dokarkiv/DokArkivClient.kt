@@ -74,7 +74,7 @@ class DokArkivClient(
             .recover {
                 val eksisterendeJournalpost =
                     if (it is ClientRequestException && it.response.status == HttpStatusCode.Conflict) {
-                        lesEkstisterende(it, request)
+                        lesEksisterende(it, request)
                     } else {
                         null
                     }
@@ -147,7 +147,7 @@ class DokArkivClient(
         logger.info("Ferdigstilling av journalpost OK. $idFragment")
     }
 
-    private fun lesEkstisterende(feil: ClientRequestException, request: OpprettOgFerdigstillRequest): OpprettOgFerdigstillResponse? {
+    private fun lesEksisterende(feil: ClientRequestException, request: OpprettOgFerdigstillRequest): OpprettOgFerdigstillResponse? {
         val journalpost = runBlocking { feil.response.body<OpprettOgFerdigstillResponse>() }
         return if (journalpost.journalpostId.isNotEmpty()) {
             logger.info(
