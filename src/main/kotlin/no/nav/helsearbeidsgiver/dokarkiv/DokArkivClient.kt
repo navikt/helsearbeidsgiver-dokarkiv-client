@@ -11,7 +11,6 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.util.reflect.instanceOf
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.dokarkiv.domene.Avsender
 import no.nav.helsearbeidsgiver.dokarkiv.domene.Dokument
@@ -73,22 +72,20 @@ class DokArkivClient(
                 }
             }
             .onFailure {
-                if (it.instanceOf(ClientRequestException::class)) {
-                    it as ClientRequestException
-                    if (it.response.status == HttpStatusCode.Conflict) {
-                        val journalpost = runBlocking { it.response.body<OpprettOgFerdigstillResponse>() }
-                        if (!journalpost.journalpostId.isNullOrEmpty()) {
-                            logger.info(
-                                "Fikk 409 Conflict ved journalføring med referanse(id=${request.eksternReferanseId}) og tittel (${request.tittel}. " +
-                                    "Bruker eksisterende journalpostId (${journalpost.journalpostId}) fra respons.",
-                            )
-                            return journalpost
-                        } else {
-                            logger.error(
-                                "Fikk 409 Conflict ved journalføring med referanse(id=${request.eksternReferanseId}) og tittel (${request.tittel}, " +
-                                    "men mangler journalpostId fra respons.",
-                            )
-                        }
+                if (it is ClientRequestException && it.response.status == HttpStatusCode.Conflict) {
+                    val journalpost = runBlocking { it.response.body<OpprettOgFerdigstillResponse>() }
+                    return if (journalpost.journalpostId.isNotEmpty()) {
+                        logger.info(
+                            "Fikk 409 Conflict ved journalføring med referanse(id=${request.eksternReferanseId}) og tittel (${request.tittel}. " +
+                                "Bruker eksisterende journalpostId (${journalpost.journalpostId}) fra respons.",
+                        )
+                        journalpost
+                    } else {
+                        logger.error(
+                            "Fikk 409 Conflict ved journalføring med referanse(id=${request.eksternReferanseId}) og tittel (${request.tittel}, " +
+                                "men mangler journalpostId fra respons.",
+                        )
+                        throw it
                     }
                 }
             }
