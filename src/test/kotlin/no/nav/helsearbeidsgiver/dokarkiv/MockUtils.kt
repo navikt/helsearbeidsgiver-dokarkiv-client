@@ -23,10 +23,10 @@ fun mockDokArkivClient(content: String, status: HttpStatusCode): DokArkivClient 
         )
     }
 
-    val mockHttpClient = HttpClient(mockEngine) { configure() }
+    val mockHttpClient = HttpClient(mockEngine) { configure(retries = 0) }
 
     return mockStatic(::createHttpClient) {
-        every { createHttpClient() } returns mockHttpClient
+        every { createHttpClient(any()) } returns mockHttpClient
         DokArkivClient("mock url") { "mock access token" }
     }
 }
