@@ -26,7 +26,7 @@ internal fun HttpClientConfig<*>.configure(retries: Int) {
         maxRetries = retries
         retryOnServerErrors(maxRetries)
         retryOnExceptionIf { _, cause ->
-            cause.IsRetryableException()
+            cause.isRetryableException()
         }
         exponentialDelay()
     }
@@ -36,10 +36,11 @@ internal fun HttpRequestBuilder.navCallId(callId: String) {
     header("Nav-Call-Id", callId)
 }
 
-private fun Throwable.IsRetryableException() = when (this) {
-    is SocketTimeoutException -> true
-    is ConnectTimeoutException -> true
-    is HttpRequestTimeoutException -> true
-    is java.net.SocketTimeoutException -> true
-    else -> false
-}
+private fun Throwable.isRetryableException() =
+    when (this) {
+        is SocketTimeoutException -> true
+        is ConnectTimeoutException -> true
+        is HttpRequestTimeoutException -> true
+        is java.net.SocketTimeoutException -> true
+        else -> false
+    }
