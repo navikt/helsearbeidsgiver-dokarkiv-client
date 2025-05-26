@@ -60,6 +60,5 @@ class OpprettOgFerdigstillRequestTest : FunSpec({
         request shouldContain """
             "kanal":"HR_SYSTEM_API"
         """.trimIndent()
-
     }
 })
