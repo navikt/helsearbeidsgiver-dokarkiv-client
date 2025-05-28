@@ -21,12 +21,11 @@ internal data class OpprettOgFerdigstillRequest(
     val dokumenter: List<Dokument>,
     /** Unik id for forsendelsen som kan brukes til sporing gjennom verdikjeden. */
     val eksternReferanseId: String,
+    @EncodeDefault
+    val kanal: Kanal = Kanal.NAV_NO,
 ) {
     @EncodeDefault
     val tema = "SYK"
-
-    @EncodeDefault
-    val kanal = "NAV_NO"
 
     @EncodeDefault
     val journalposttype = "INNGAAENDE"
