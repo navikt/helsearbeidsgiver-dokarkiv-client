@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.http.HttpStatusCode
+import no.nav.helsearbeidsgiver.dokarkiv.domene.Kanal
 import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillResponse
 import no.nav.helsearbeidsgiver.utils.json.toJsonStr
 import java.time.LocalDate
@@ -117,4 +118,5 @@ private suspend fun DokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
         dokumenter = emptyList(),
         eksternReferanseId = "",
         callId = "",
+        kanal = Kanal.NAV_NO,
     )

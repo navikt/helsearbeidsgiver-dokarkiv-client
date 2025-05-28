@@ -21,8 +21,8 @@ internal data class OpprettOgFerdigstillRequest(
     val dokumenter: List<Dokument>,
     /** Unik id for forsendelsen som kan brukes til sporing gjennom verdikjeden. */
     val eksternReferanseId: String,
-    @EncodeDefault
-    val kanal: Kanal = Kanal.NAV_NO,
+    /** Hvilken mottakskanal dokumentet er sendt inn gjennom feks NAV_NO for skjemaer på nav.no **/
+    val kanal: Kanal,
 ) {
     @EncodeDefault
     val tema = "SYK"
