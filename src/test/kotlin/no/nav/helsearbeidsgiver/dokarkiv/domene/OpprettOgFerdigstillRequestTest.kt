@@ -23,6 +23,7 @@ class OpprettOgFerdigstillRequestTest : FunSpec({
             datoMottatt = LocalDate.now(),
             dokumenter = emptyList(),
             eksternReferanseId = UUID.randomUUID().toString(),
+            kanal = Kanal.NAV_NO,
         ).toJsonStr(OpprettOgFerdigstillRequest.serializer())
 
         request shouldContain """
