@@ -48,7 +48,7 @@ class DokArkivClient(
         eksternReferanseId: String,
         callId: String,
         /** Hvilken mottakskanal dokumentet er sendt inn gjennom feks NAV_NO for skjemaer på nav.no **/
-        kanal: Kanal = Kanal.NAV_NO,
+        kanal: Kanal,
     ): OpprettOgFerdigstillResponse {
         val idFragment = "eksternReferanseId=[$eksternReferanseId] callId=[$callId]"
 
