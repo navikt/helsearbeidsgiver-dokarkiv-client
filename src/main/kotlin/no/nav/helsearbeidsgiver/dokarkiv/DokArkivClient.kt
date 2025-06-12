@@ -25,12 +25,11 @@ import java.time.LocalDate
 
 class DokArkivClient(
     private val url: String,
-    maxRetries: Int = 0,
     private val getAccessToken: () -> String,
 ) {
     private val logger = logger()
 
-    private val httpClient = createHttpClient(maxRetries)
+    private val httpClient = createHttpClient()
 
     /**
      * Oppretter en journalpost i Joark/dokarkiv, med eller uten dokumenter, og forsøker å ferdigstille.
