@@ -9,6 +9,7 @@ import io.ktor.client.plugins.ServerResponseException
 import io.ktor.http.HttpStatusCode
 import no.nav.helsearbeidsgiver.dokarkiv.domene.Kanal
 import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillResponse
+import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.json.toJsonStr
 import java.time.LocalDate
 
@@ -19,8 +20,7 @@ class DokArkivClientTest : FunSpec({
             val expected = mockOpprettOgFerdigstillResponse()
 
             val mockDokArkivClient = mockDokArkivClient(
-                expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
-                HttpStatusCode.OK,
+                HttpStatusCode.OK to expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
             )
 
             val actual = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
@@ -31,8 +31,7 @@ class DokArkivClientTest : FunSpec({
         test("Håndter konflikt (status 409) ved duplikat forespørsel") {
             val expected = mockOpprettOgFerdigstillResponse()
             val mockDokArkivClient = mockDokArkivClient(
-                expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
-                HttpStatusCode.Conflict,
+                HttpStatusCode.Conflict to expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
             )
             val actual = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
             actual.journalpostId shouldBe expected.journalpostId
@@ -44,8 +43,7 @@ class DokArkivClientTest : FunSpec({
             )
 
             val mockDokArkivClient = mockDokArkivClient(
-                expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
-                HttpStatusCode.OK,
+                HttpStatusCode.OK to expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
             )
 
             val actual = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
@@ -56,7 +54,7 @@ class DokArkivClientTest : FunSpec({
 
     context("oppdaterJournalpost") {
         test("Journalpost oppdateres uten feil") {
-            val mockDokArkivClient = mockDokArkivClient("", HttpStatusCode.OK)
+            val mockDokArkivClient = mockDokArkivClient(HttpStatusCode.OK to "")
 
             shouldNotThrowAny {
                 mockDokArkivClient.oppdaterJournalpost("jid-doven-isolasjon", mockGjelderPerson(), mockAvsender(), "cid-krigersk-hamster")
@@ -66,7 +64,7 @@ class DokArkivClientTest : FunSpec({
 
     context("ferdigstillJournalpost") {
         test("Journalpost ferdigstilles uten feil") {
-            val mockDokArkivClient = mockDokArkivClient("", HttpStatusCode.OK)
+            val mockDokArkivClient = mockDokArkivClient(HttpStatusCode.OK to "")
 
             shouldNotThrowAny {
                 mockDokArkivClient.ferdigstillJournalpost("jid-lystig-lemen", "cid-kjølig-krone")
@@ -74,7 +72,7 @@ class DokArkivClientTest : FunSpec({
         }
     }
 
-    context("Feilrespons") {
+    context("håndterer feil") {
         listOf<Pair<String, suspend DokArkivClient.() -> Unit>>(
             "opprettOgFerdigstillJournalpost" to { opprettOgFerdigstillJournalpostMedMockInput() },
             "oppdaterJournalpost" to {
@@ -85,24 +83,48 @@ class DokArkivClientTest : FunSpec({
             .forEach { (metodeNavn, metode) ->
 
                 context(metodeNavn) {
-                    test("BadRequest gir ClientRequestException med status BadRequest") {
-                        val mockDokArkivClient = mockDokArkivClient("", HttpStatusCode.BadRequest)
 
+                    test("feiler ved 4xx-feil") {
                         val e = shouldThrowExactly<ClientRequestException> {
-                            mockDokArkivClient.metode()
+                            mockDokArkivClient(HttpStatusCode.BadRequest to "").metode()
                         }
 
                         e.response.status shouldBe HttpStatusCode.BadRequest
                     }
 
-                    test("InternalServerError gir ServerResponseException med status InternalServerError") {
-                        val mockDokArkivClient = mockDokArkivClient("", HttpStatusCode.InternalServerError)
+                    test("lykkes ved færre 5xx-feil enn max retries (3)") {
+                        shouldNotThrowAny {
+                            mockDokArkivClient(
+                                HttpStatusCode.InternalServerError to "",
+                                HttpStatusCode.InternalServerError to "",
+                                HttpStatusCode.InternalServerError to "",
+                                HttpStatusCode.OK to mockOpprettOgFerdigstillResponse().toJson(OpprettOgFerdigstillResponse.serializer()).toString(),
+                            ).metode()
+                        }
+                    }
 
+                    test("feiler ved flere 5xx-feil enn max retries (3)") {
                         val e = shouldThrowExactly<ServerResponseException> {
-                            mockDokArkivClient.metode()
+                            mockDokArkivClient(
+                                HttpStatusCode.InternalServerError to "",
+                                HttpStatusCode.InternalServerError to "",
+                                HttpStatusCode.InternalServerError to "",
+                                HttpStatusCode.InternalServerError to "",
+                            ).metode()
                         }
 
                         e.response.status shouldBe HttpStatusCode.InternalServerError
+                    }
+
+                    test("kall feiler og prøver på nytt ved timeout") {
+                        shouldNotThrowAny {
+                            mockDokArkivClient(
+                                HttpStatusCode.OK to "timeout",
+                                HttpStatusCode.OK to "timeout",
+                                HttpStatusCode.OK to "timeout",
+                                HttpStatusCode.OK to mockOpprettOgFerdigstillResponse().toJson(OpprettOgFerdigstillResponse.serializer()).toString(),
+                            ).metode()
+                        }
                     }
                 }
             }
