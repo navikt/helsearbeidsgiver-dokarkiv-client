@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.dokarkiv.domene.Kanal
 import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillResponse
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -85,45 +86,62 @@ class DokArkivClientTest : FunSpec({
                 context(metodeNavn) {
 
                     test("feiler ved 4xx-feil") {
+                        val mockDokArkivClient = mockDokArkivClient(HttpStatusCode.BadRequest to "")
+
                         val e = shouldThrowExactly<ClientRequestException> {
-                            mockDokArkivClient(HttpStatusCode.BadRequest to "").metode()
+                            mockDokArkivClient.metode()
                         }
 
                         e.response.status shouldBe HttpStatusCode.BadRequest
                     }
 
                     test("lykkes ved færre 5xx-feil enn max retries (3)") {
-                        shouldNotThrowAny {
+                        val mockDokArkivClient =
                             mockDokArkivClient(
                                 HttpStatusCode.InternalServerError to "",
                                 HttpStatusCode.InternalServerError to "",
                                 HttpStatusCode.InternalServerError to "",
                                 HttpStatusCode.OK to mockOpprettOgFerdigstillResponse().toJson(OpprettOgFerdigstillResponse.serializer()).toString(),
-                            ).metode()
+                            )
+
+                        runTest {
+                            shouldNotThrowAny {
+                                mockDokArkivClient.metode()
+                            }
                         }
                     }
 
                     test("feiler ved flere 5xx-feil enn max retries (3)") {
-                        val e = shouldThrowExactly<ServerResponseException> {
+                        val mockDokArkivClient =
                             mockDokArkivClient(
                                 HttpStatusCode.InternalServerError to "",
                                 HttpStatusCode.InternalServerError to "",
                                 HttpStatusCode.InternalServerError to "",
                                 HttpStatusCode.InternalServerError to "",
-                            ).metode()
-                        }
+                            )
 
-                        e.response.status shouldBe HttpStatusCode.InternalServerError
+                        runTest {
+                            val e = shouldThrowExactly<ServerResponseException> {
+                                mockDokArkivClient.metode()
+                            }
+
+                            e.response.status shouldBe HttpStatusCode.InternalServerError
+                        }
                     }
 
                     test("kall feiler og prøver på nytt ved timeout") {
-                        shouldNotThrowAny {
+                        val mockDokArkivClient =
                             mockDokArkivClient(
                                 HttpStatusCode.OK to "timeout",
                                 HttpStatusCode.OK to "timeout",
                                 HttpStatusCode.OK to "timeout",
                                 HttpStatusCode.OK to mockOpprettOgFerdigstillResponse().toJson(OpprettOgFerdigstillResponse.serializer()).toString(),
-                            ).metode()
+                            )
+
+                        runTest {
+                            shouldNotThrowAny {
+                                mockDokArkivClient.metode()
+                            }
                         }
                     }
                 }
