@@ -22,7 +22,7 @@ fun mockDokArkivClient(vararg responses: Pair<HttpStatusCode, String>): DokArkiv
             responses.map { (status, content) ->
                 {
                     if (content == "timeout") {
-                        delay(600)
+                        delay(10100) // TODO: Testene kjører med faktisk delay, fix..
                     }
                     respond(
                         content = content,
