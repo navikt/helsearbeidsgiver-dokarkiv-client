@@ -16,23 +16,24 @@ import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillResponse
 import no.nav.helsearbeidsgiver.utils.test.mock.mockStatic
 
 fun mockDokArkivClient(vararg responses: Pair<HttpStatusCode, String>): DokArkivClient {
-    val mockEngine = MockEngine.create {
-        reuseHandlers = false
-        requestHandlers.addAll(
-            responses.map { (status, content) ->
-                {
-                    if (content == "timeout") {
-                        delay(600)
+    val mockEngine =
+        MockEngine.create {
+            reuseHandlers = false
+            requestHandlers.addAll(
+                responses.map { (status, content) ->
+                    {
+                        if (content == "timeout") {
+                            delay(600)
+                        }
+                        respond(
+                            content = content,
+                            status = status,
+                            headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                        )
                     }
-                    respond(
-                        content = content,
-                        status = status,
-                        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
-                    )
-                }
-            },
-        )
-    }
+                },
+            )
+        }
 
     val mockHttpClient = HttpClient(mockEngine) { configure() }
 
@@ -47,14 +48,15 @@ fun mockOpprettOgFerdigstillResponse(): OpprettOgFerdigstillResponse =
         journalpostId = "jid-klassisk-pære",
         journalpostFerdigstilt = true,
         melding = "Ha en fin dag!",
-        dokumenter = listOf(
-            DokumentInfoId(
-                dokumentInfoId = "dok-id-den-første",
+        dokumenter =
+            listOf(
+                DokumentInfoId(
+                    dokumentInfoId = "dok-id-den-første",
+                ),
+                DokumentInfoId(
+                    dokumentInfoId = "dok-id-den-andre",
+                ),
             ),
-            DokumentInfoId(
-                dokumentInfoId = "dok-id-den-andre",
-            ),
-        ),
     )
 
 fun mockGjelderPerson(): GjelderPerson =

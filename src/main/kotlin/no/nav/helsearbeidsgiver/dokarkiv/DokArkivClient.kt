@@ -51,43 +51,41 @@ class DokArkivClient(
     ): OpprettOgFerdigstillResponse {
         val idFragment = "eksternReferanseId=[$eksternReferanseId] callId=[$callId]"
 
-        val request = OpprettOgFerdigstillRequest(
-            tittel = tittel,
-            bruker = gjelderPerson.tilBruker(),
-            avsenderMottaker = avsender.tilAvsenderMottaker(),
-            datoMottatt = datoMottatt,
-            dokumenter = dokumenter,
-            eksternReferanseId = eksternReferanseId,
-            kanal = kanal,
-        )
+        val request =
+            OpprettOgFerdigstillRequest(
+                tittel = tittel,
+                bruker = gjelderPerson.tilBruker(),
+                avsenderMottaker = avsender.tilAvsenderMottaker(),
+                datoMottatt = datoMottatt,
+                dokumenter = dokumenter,
+                eksternReferanseId = eksternReferanseId,
+                kanal = kanal,
+            )
 
         return runCatching {
-            httpClient.post("$url/journalpost?forsoekFerdigstill=true") {
-                contentType(ContentType.Application.Json)
-                bearerAuth(getAccessToken())
-                navCallId(callId)
-                setBody(request)
+            httpClient
+                .post("$url/journalpost?forsoekFerdigstill=true") {
+                    contentType(ContentType.Application.Json)
+                    bearerAuth(getAccessToken())
+                    navCallId(callId)
+                    setBody(request)
+                }.body<OpprettOgFerdigstillResponse>()
+        }.onSuccess {
+            if (!it.journalpostFerdigstilt) {
+                logger.error("Journalpost ble opprettet, men ikke ferdigstilt. journalpostId=[${it.journalpostId}] $idFragment")
             }
-                .body<OpprettOgFerdigstillResponse>()
-        }
-            .onSuccess {
-                if (!it.journalpostFerdigstilt) {
-                    logger.error("Journalpost ble opprettet, men ikke ferdigstilt. journalpostId=[${it.journalpostId}] $idFragment")
+        }.recover {
+            val eksisterendeJournalpost =
+                if (it is ClientRequestException && it.response.status == HttpStatusCode.Conflict) {
+                    lesEksisterende(it, request)
+                } else {
+                    null
                 }
-            }
-            .recover {
-                val eksisterendeJournalpost =
-                    if (it is ClientRequestException && it.response.status == HttpStatusCode.Conflict) {
-                        lesEksisterende(it, request)
-                    } else {
-                        null
-                    }
 
-                eksisterendeJournalpost ?: throw it
-            }
-            .getOrElse {
-                loggFeilrespons(it, "opprettOgFerdigstill", idFragment)
-            }
+            eksisterendeJournalpost ?: throw it
+        }.getOrElse {
+            loggFeilrespons(it, "opprettOgFerdigstill", idFragment)
+        }
     }
 
     /**
@@ -103,10 +101,11 @@ class DokArkivClient(
     ) {
         val idFragment = "journalpostId=[$journalpostId] callId=[$callId]"
 
-        val request = OppdaterRequest(
-            bruker = gjelderPerson.tilBruker(),
-            avsenderMottaker = avsender.tilAvsenderMottaker(),
-        )
+        val request =
+            OppdaterRequest(
+                bruker = gjelderPerson.tilBruker(),
+                avsenderMottaker = avsender.tilAvsenderMottaker(),
+            )
 
         runCatching {
             httpClient.put("$url/journalpost/$journalpostId") {
@@ -115,10 +114,9 @@ class DokArkivClient(
                 navCallId(callId)
                 setBody(request)
             }
+        }.onFailure {
+            loggFeilrespons(it, "oppdatering", idFragment)
         }
-            .onFailure {
-                loggFeilrespons(it, "oppdatering", idFragment)
-            }
 
         logger.info("Oppdatering av journalpost OK. $idFragment")
     }
@@ -143,15 +141,17 @@ class DokArkivClient(
                 navCallId(callId)
                 setBody(request)
             }
+        }.onFailure {
+            loggFeilrespons(it, "ferdigstilling", idFragment)
         }
-            .onFailure {
-                loggFeilrespons(it, "ferdigstilling", idFragment)
-            }
 
         logger.info("Ferdigstilling av journalpost OK. $idFragment")
     }
 
-    private fun lesEksisterende(feil: ClientRequestException, request: OpprettOgFerdigstillRequest): OpprettOgFerdigstillResponse? {
+    private fun lesEksisterende(
+        feil: ClientRequestException,
+        request: OpprettOgFerdigstillRequest,
+    ): OpprettOgFerdigstillResponse? {
         val journalpost = runBlocking { feil.response.body<OpprettOgFerdigstillResponse>() }
         return if (journalpost.journalpostId.isNotEmpty()) {
             logger.info(
@@ -168,7 +168,11 @@ class DokArkivClient(
         }
     }
 
-    private fun loggFeilrespons(feil: Throwable, handling: String, idFragment: String): Nothing {
+    private fun loggFeilrespons(
+        feil: Throwable,
+        handling: String,
+        idFragment: String,
+    ): Nothing {
         if (feil is ResponseException) {
             logger.error("$handling: dokarkiv svarte med HTTP-status ${feil.response.status}. $idFragment", feil)
         }

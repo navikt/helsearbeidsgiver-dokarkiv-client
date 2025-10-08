@@ -55,7 +55,6 @@ data class Dokument(
      * For inngående dokumenter kan brevkoden være en NAV-skjemaID f.eks. "NAV 14-05.09" eller en SED-id.
      */
     val brevkode: String,
-
     /** De forskjellige varientene av samme dokument, feks kan et dokument ha en XML variant og en PDF-variant. */
     val dokumentVarianter: List<DokumentVariant>,
 )
