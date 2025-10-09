@@ -14,83 +14,88 @@ import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.json.toJsonStr
 import java.time.LocalDate
 
-class DokArkivClientTest : FunSpec({
+class DokArkivClientTest :
+    FunSpec({
 
-    context("opprettOgFerdigstillJournalpost") {
-        test("Journalpost opprettes og ferdigstilles") {
-            val expected = mockOpprettOgFerdigstillResponse()
+        context("opprettOgFerdigstillJournalpost") {
+            test("Journalpost opprettes og ferdigstilles") {
+                val expected = mockOpprettOgFerdigstillResponse()
 
-            val mockDokArkivClient = mockDokArkivClient(
-                HttpStatusCode.OK to expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
-            )
+                val mockDokArkivClient =
+                    mockDokArkivClient(
+                        HttpStatusCode.OK to expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
+                    )
 
-            val actual = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
+                val actual = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
 
-            actual shouldBe expected
-        }
+                actual shouldBe expected
+            }
 
-        test("Håndter konflikt (status 409) ved duplikat forespørsel") {
-            val expected = mockOpprettOgFerdigstillResponse()
-            val mockDokArkivClient = mockDokArkivClient(
-                HttpStatusCode.Conflict to expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
-            )
-            val actual = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
-            actual.journalpostId shouldBe expected.journalpostId
-        }
+            test("Håndter konflikt (status 409) ved duplikat forespørsel") {
+                val expected = mockOpprettOgFerdigstillResponse()
+                val mockDokArkivClient =
+                    mockDokArkivClient(
+                        HttpStatusCode.Conflict to expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
+                    )
+                val actual = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
+                actual.journalpostId shouldBe expected.journalpostId
+            }
 
-        test("Feiler ikke dersom journalpost opprettes, men ikke ferdigstilles") {
-            val expected = mockOpprettOgFerdigstillResponse().copy(
-                journalpostFerdigstilt = false,
-            )
+            test("Feiler ikke dersom journalpost opprettes, men ikke ferdigstilles") {
+                val expected =
+                    mockOpprettOgFerdigstillResponse().copy(
+                        journalpostFerdigstilt = false,
+                    )
 
-            val mockDokArkivClient = mockDokArkivClient(
-                HttpStatusCode.OK to expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
-            )
+                val mockDokArkivClient =
+                    mockDokArkivClient(
+                        HttpStatusCode.OK to expected.toJsonStr(OpprettOgFerdigstillResponse.serializer()),
+                    )
 
-            val actual = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
+                val actual = mockDokArkivClient.opprettOgFerdigstillJournalpostMedMockInput()
 
-            actual shouldBe expected
-        }
-    }
-
-    context("oppdaterJournalpost") {
-        test("Journalpost oppdateres uten feil") {
-            val mockDokArkivClient = mockDokArkivClient(HttpStatusCode.OK to "")
-
-            shouldNotThrowAny {
-                mockDokArkivClient.oppdaterJournalpost("jid-doven-isolasjon", mockGjelderPerson(), mockAvsender(), "cid-krigersk-hamster")
+                actual shouldBe expected
             }
         }
-    }
 
-    context("ferdigstillJournalpost") {
-        test("Journalpost ferdigstilles uten feil") {
-            val mockDokArkivClient = mockDokArkivClient(HttpStatusCode.OK to "")
+        context("oppdaterJournalpost") {
+            test("Journalpost oppdateres uten feil") {
+                val mockDokArkivClient = mockDokArkivClient(HttpStatusCode.OK to "")
 
-            shouldNotThrowAny {
-                mockDokArkivClient.ferdigstillJournalpost("jid-lystig-lemen", "cid-kjølig-krone")
+                shouldNotThrowAny {
+                    mockDokArkivClient.oppdaterJournalpost("jid-doven-isolasjon", mockGjelderPerson(), mockAvsender(), "cid-krigersk-hamster")
+                }
             }
         }
-    }
 
-    context("håndterer feil") {
-        listOf<Pair<String, suspend DokArkivClient.() -> Unit>>(
-            "opprettOgFerdigstillJournalpost" to { opprettOgFerdigstillJournalpostMedMockInput() },
-            "oppdaterJournalpost" to {
-                oppdaterJournalpost("jid-doven-isolasjon", mockGjelderPerson(), mockAvsender(), "cid-krigersk-hamster")
-            },
-            "ferdigstillJournalpost" to { ferdigstillJournalpost("jid-lystig-lemen", "cid-kjølig-krone") },
-        )
-            .forEach { (metodeNavn, metode) ->
+        context("ferdigstillJournalpost") {
+            test("Journalpost ferdigstilles uten feil") {
+                val mockDokArkivClient = mockDokArkivClient(HttpStatusCode.OK to "")
+
+                shouldNotThrowAny {
+                    mockDokArkivClient.ferdigstillJournalpost("jid-lystig-lemen", "cid-kjølig-krone")
+                }
+            }
+        }
+
+        context("håndterer feil") {
+            listOf<Pair<String, suspend DokArkivClient.() -> Unit>>(
+                "opprettOgFerdigstillJournalpost" to { opprettOgFerdigstillJournalpostMedMockInput() },
+                "oppdaterJournalpost" to {
+                    oppdaterJournalpost("jid-doven-isolasjon", mockGjelderPerson(), mockAvsender(), "cid-krigersk-hamster")
+                },
+                "ferdigstillJournalpost" to { ferdigstillJournalpost("jid-lystig-lemen", "cid-kjølig-krone") },
+            ).forEach { (metodeNavn, metode) ->
 
                 context(metodeNavn) {
 
                     test("feiler ved 4xx-feil") {
                         val mockDokArkivClient = mockDokArkivClient(HttpStatusCode.BadRequest to "")
 
-                        val e = shouldThrowExactly<ClientRequestException> {
-                            mockDokArkivClient.metode()
-                        }
+                        val e =
+                            shouldThrowExactly<ClientRequestException> {
+                                mockDokArkivClient.metode()
+                            }
 
                         e.response.status shouldBe HttpStatusCode.BadRequest
                     }
@@ -121,9 +126,10 @@ class DokArkivClientTest : FunSpec({
                             )
 
                         runTest {
-                            val e = shouldThrowExactly<ServerResponseException> {
-                                mockDokArkivClient.metode()
-                            }
+                            val e =
+                                shouldThrowExactly<ServerResponseException> {
+                                    mockDokArkivClient.metode()
+                                }
 
                             e.response.status shouldBe HttpStatusCode.InternalServerError
                         }
@@ -146,8 +152,8 @@ class DokArkivClientTest : FunSpec({
                     }
                 }
             }
-    }
-})
+        }
+    })
 
 private suspend fun DokArkivClient.opprettOgFerdigstillJournalpostMedMockInput(): OpprettOgFerdigstillResponse =
     opprettOgFerdigstillJournalpost(

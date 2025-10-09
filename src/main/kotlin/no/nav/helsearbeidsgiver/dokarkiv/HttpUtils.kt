@@ -11,8 +11,7 @@ import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 
-internal fun createHttpClient(): HttpClient =
-    HttpClient(Apache5) { configure() }
+internal fun createHttpClient(): HttpClient = HttpClient(Apache5) { configure() }
 
 internal fun HttpClientConfig<*>.configure() {
     expectSuccess = true
