@@ -6,6 +6,7 @@ version = "0.5.3"
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
+    id("io.kotest")
     id("org.jmailen.kotlinter")
     id("maven-publish")
 }
@@ -45,6 +46,7 @@ publishing {
 dependencies {
     val kotestVersion: String by project
     val kotlinxCoroutinesVersion: String by project
+    val kotlinxSerializationVersion: String by project
     val ktorVersion: String by project
     val logbackVersion: String by project
     val mockkVersion: String by project
@@ -55,9 +57,11 @@ dependencies {
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
 
     testImplementation(testFixtures("no.nav.helsearbeidsgiver:utils:$utilsVersion"))
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+    testImplementation("io.kotest:kotest-framework-engine:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
