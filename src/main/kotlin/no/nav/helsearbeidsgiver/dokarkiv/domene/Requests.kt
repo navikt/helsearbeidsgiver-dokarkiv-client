@@ -23,6 +23,7 @@ internal data class OpprettOgFerdigstillRequest(
     val eksternReferanseId: String,
     /** Hvilken mottakskanal dokumentet er sendt inn gjennom feks NAV_NO for skjemaer på nav.no **/
     val kanal: Kanal,
+    val overstyrInnsynsregler: InnsynsRegler? = null,
 ) {
     @EncodeDefault
     val tema = "SYK"
