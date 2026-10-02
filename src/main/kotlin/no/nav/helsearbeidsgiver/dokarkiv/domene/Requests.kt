@@ -24,12 +24,10 @@ internal data class OpprettOgFerdigstillRequest(
     /** Hvilken mottakskanal dokumentet er sendt inn gjennom feks NAV_NO for skjemaer på nav.no **/
     val kanal: Kanal,
     val overstyrInnsynsregler: InnsynsRegler? = null,
+    val journalposttype: Journalposttype = Journalposttype.INNGAAENDE,
 ) {
     @EncodeDefault
     val tema = "SYK"
-
-    @EncodeDefault
-    val journalposttype = "INNGAAENDE"
 
     @EncodeDefault
     val journalfoerendeEnhet = AUTOMATISK_JOURNALFOERING_ENHET
