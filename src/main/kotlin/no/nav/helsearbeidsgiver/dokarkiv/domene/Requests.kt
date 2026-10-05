@@ -21,9 +21,10 @@ internal data class OpprettOgFerdigstillRequest(
     val dokumenter: List<Dokument>,
     /** Unik id for forsendelsen som kan brukes til sporing gjennom verdikjeden. */
     val eksternReferanseId: String,
-    /** Hvilken mottakskanal dokumentet er sendt inn gjennom feks NAV_NO for skjemaer på nav.no **/
+    /** Hvilken mottakskanal dokumentet er sendt inn gjennom feks NAV_NO for skjemaer på nav.no  eller hvilken utsendingskanal dokumentet skal sendes ut gjennom **/
     val kanal: Kanal,
     val overstyrInnsynsregler: InnsynsRegler? = null,
+    @EncodeDefault
     val journalposttype: Journalposttype = Journalposttype.INNGAAENDE,
 ) {
     @EncodeDefault
