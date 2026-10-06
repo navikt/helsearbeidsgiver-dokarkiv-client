@@ -25,7 +25,7 @@ internal data class OpprettOgFerdigstillRequest(
     val kanal: Kanal,
     val overstyrInnsynsregler: InnsynsRegler? = null,
     @EncodeDefault
-    val journalposttype: Journalposttype = Journalposttype.INNGAAENDE,
+    val journalposttype: Journalposttype,
 ) {
     @EncodeDefault
     val tema = "SYK"

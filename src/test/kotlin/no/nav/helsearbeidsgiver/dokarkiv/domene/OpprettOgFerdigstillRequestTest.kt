@@ -27,6 +27,7 @@ class OpprettOgFerdigstillRequestTest :
                     dokumenter = emptyList(),
                     eksternReferanseId = UUID.randomUUID().toString(),
                     kanal = Kanal.NAV_NO,
+                    journalposttype = Journalposttype.INNGAAENDE,
                 ).toJsonStr(OpprettOgFerdigstillRequest.serializer())
 
             request shouldContain
@@ -65,6 +66,7 @@ class OpprettOgFerdigstillRequestTest :
                     dokumenter = emptyList(),
                     eksternReferanseId = UUID.randomUUID().toString(),
                     kanal = Kanal.HR_SYSTEM_API,
+                    journalposttype = Journalposttype.INNGAAENDE,
                 ).toJsonStr(OpprettOgFerdigstillRequest.serializer())
 
             request shouldContain
