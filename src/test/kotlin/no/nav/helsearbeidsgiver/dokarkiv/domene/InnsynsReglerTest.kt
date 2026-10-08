@@ -29,6 +29,7 @@ class InnsynsReglerTest :
                     eksternReferanseId = UUID.randomUUID().toString(),
                     kanal = Kanal.NAV_NO,
                     overstyrInnsynsregler = InnsynsRegler.VISES_MASKINELT_GODKJENT,
+                    journalposttype = Journalposttype.INNGAAENDE,
                 ).toJsonStr(OpprettOgFerdigstillRequest.serializer())
 
             request shouldContain
@@ -53,6 +54,7 @@ class InnsynsReglerTest :
                     eksternReferanseId = UUID.randomUUID().toString(),
                     kanal = Kanal.NAV_NO,
                     overstyrInnsynsregler = InnsynsRegler.VISES_MANUELT_GODKJENT,
+                    journalposttype = Journalposttype.INNGAAENDE,
                 ).toJsonStr(OpprettOgFerdigstillRequest.serializer())
 
             request shouldContain
@@ -76,6 +78,7 @@ class InnsynsReglerTest :
                     dokumenter = emptyList(),
                     eksternReferanseId = UUID.randomUUID().toString(),
                     kanal = Kanal.NAV_NO,
+                    journalposttype = Journalposttype.INNGAAENDE,
                 ).toJsonStr(OpprettOgFerdigstillRequest.serializer())
 
             request shouldNotContain "overstyrInnsynsregler"

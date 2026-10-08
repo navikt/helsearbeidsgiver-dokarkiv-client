@@ -17,6 +17,7 @@ import no.nav.helsearbeidsgiver.dokarkiv.domene.Dokument
 import no.nav.helsearbeidsgiver.dokarkiv.domene.FerdigstillRequest
 import no.nav.helsearbeidsgiver.dokarkiv.domene.GjelderPerson
 import no.nav.helsearbeidsgiver.dokarkiv.domene.InnsynsRegler
+import no.nav.helsearbeidsgiver.dokarkiv.domene.Journalposttype
 import no.nav.helsearbeidsgiver.dokarkiv.domene.Kanal
 import no.nav.helsearbeidsgiver.dokarkiv.domene.OppdaterRequest
 import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillRequest
@@ -47,10 +48,11 @@ class DokArkivClient(
         /** Unik id for forsendelsen som kan brukes til sporing gjennom verdikjeden. */
         eksternReferanseId: String,
         callId: String,
-        /** Hvilken mottakskanal dokumentet er sendt inn gjennom feks NAV_NO for skjemaer på nav.no **/
+        /** Hvilken mottakskanal dokumentet er sendt inn gjennom feks NAV_NO for skjemaer på nav.no  eller hvilken utsendingskanal dokumentet skal sendes ut gjennom **/
         kanal: Kanal,
         /** Overstyring av innsynsregler */
         overstyrInnsynsregler: InnsynsRegler? = null,
+        journalposttype: Journalposttype = Journalposttype.INNGAAENDE,
     ): OpprettOgFerdigstillResponse {
         val idFragment = "eksternReferanseId=[$eksternReferanseId] callId=[$callId]"
 
@@ -64,6 +66,7 @@ class DokArkivClient(
                 eksternReferanseId = eksternReferanseId,
                 kanal = kanal,
                 overstyrInnsynsregler = overstyrInnsynsregler,
+                journalposttype = journalposttype,
             )
 
         return runCatching {
