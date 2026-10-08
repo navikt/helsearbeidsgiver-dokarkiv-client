@@ -24,7 +24,6 @@ internal data class OpprettOgFerdigstillRequest(
     /** Hvilken mottakskanal dokumentet er sendt inn gjennom feks NAV_NO for skjemaer på nav.no  eller hvilken utsendingskanal dokumentet skal sendes ut gjennom **/
     val kanal: Kanal,
     val overstyrInnsynsregler: InnsynsRegler? = null,
-    @EncodeDefault
     val journalposttype: Journalposttype,
 ) {
     @EncodeDefault
