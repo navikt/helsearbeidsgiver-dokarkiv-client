@@ -19,6 +19,7 @@ import no.nav.helsearbeidsgiver.dokarkiv.domene.GjelderPerson
 import no.nav.helsearbeidsgiver.dokarkiv.domene.InnsynsRegler
 import no.nav.helsearbeidsgiver.dokarkiv.domene.Journalposttype
 import no.nav.helsearbeidsgiver.dokarkiv.domene.Kanal
+import no.nav.helsearbeidsgiver.dokarkiv.domene.Mottaker
 import no.nav.helsearbeidsgiver.dokarkiv.domene.OppdaterRequest
 import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillRequest
 import no.nav.helsearbeidsgiver.dokarkiv.domene.OpprettOgFerdigstillResponse
@@ -78,7 +79,7 @@ class DokArkivClient(
         /** Tittel som beskriver forsendelsen samlet, feks "Ettersendelse til søknad om foreldrepenger". */
         tittel: String,
         gjelderPerson: GjelderPerson,
-        avsender: Avsender,
+        mottaker: Mottaker,
         dokumenter: List<Dokument>,
         /** Unik id for forsendelsen som kan brukes til sporing gjennom verdikjeden. */
         eksternReferanseId: String,
@@ -92,7 +93,7 @@ class DokArkivClient(
             OpprettOgFerdigstillRequest(
                 tittel = tittel,
                 bruker = gjelderPerson.tilBruker(),
-                avsenderMottaker = avsender.tilAvsenderMottaker(),
+                avsenderMottaker = mottaker.tilAvsenderMottaker(),
                 datoMottatt = null,
                 dokumenter = dokumenter,
                 eksternReferanseId = eksternReferanseId,
