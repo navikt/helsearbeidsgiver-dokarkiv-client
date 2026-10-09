@@ -39,7 +39,7 @@ class DokArkivClient(
      *
      * Dokumentasjon: [opprettJournalpost](https://confluence.adeo.no/display/BOA/opprettJournalpost)
      */
-    suspend fun opprettOgFerdigstillJournalpost(
+    suspend fun opprettOgFerdigstillJournalpostInngaaende(
         /** Tittel som beskriver forsendelsen samlet, feks "Ettersendelse til søknad om foreldrepenger". */
         tittel: String,
         gjelderPerson: GjelderPerson,
