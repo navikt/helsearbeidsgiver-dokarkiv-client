@@ -156,7 +156,7 @@ class DokArkivClientTest :
     })
 
 private suspend fun DokArkivClient.opprettOgFerdigstillJournalpostMedMockInput(): OpprettOgFerdigstillResponse =
-    opprettOgFerdigstillJournalpost(
+    opprettOgFerdigstillJournalpostInngaaende(
         tittel = "",
         gjelderPerson = mockGjelderPerson(),
         avsender = mockAvsender(),

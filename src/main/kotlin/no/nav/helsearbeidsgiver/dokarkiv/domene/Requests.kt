@@ -17,7 +17,7 @@ internal data class OpprettOgFerdigstillRequest(
     /** Brukeren som forsendelsen gjelder */
     val bruker: Bruker,
     val avsenderMottaker: AvsenderMottaker,
-    val datoMottatt: LocalDate,
+    val datoMottatt: LocalDate?,
     val dokumenter: List<Dokument>,
     /** Unik id for forsendelsen som kan brukes til sporing gjennom verdikjeden. */
     val eksternReferanseId: String,
